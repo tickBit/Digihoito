@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Digihoito.Api/Digihoito.Api.csproj" />
+    <Project Path="src/Digihoito.Application/Digihoito.Application.csproj" />
+    <Project Path="src/Digihoito.Domain/Digihoito.Domain.csproj" />
+    <Project Path="src/Digihoito.Infrastructure/Digihoito.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Digihoito.IntegrationTests/Digihoito.IntegrationTests.csproj" />
+    <Project Path="tests/Digihoito.UnitTests/Digihoito.UnitTests.csproj" />
+  </Folder>
+</Solution>

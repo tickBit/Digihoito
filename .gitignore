@@ -1,0 +1,73 @@
+# =======================
+# Build & bin/obj
+# =======================
+bin/
+obj/
+publish/
+
+# =======================
+# Visual Studio
+# =======================
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# =======================
+# VS Code
+# =======================
+.vscode/
+
+# =======================
+# Rider
+# =======================
+.idea/
+
+# =======================
+# Logs
+# =======================
+*.log
+logs/
+
+# =======================
+# OS generated
+# =======================
+.DS_Store
+Thumbs.db
+
+# =======================
+# NuGet
+# =======================
+*.nupkg
+packages/
+.nuget/
+
+# =======================
+# EF Core Migrations snapshot (optional)
+# =======================
+*.Designer.cs
+
+# =======================
+# SQL Server LocalDB & database
+# =======================
+*.mdf
+*.ldf
+*.ndf
+
+# =======================
+# User secrets
+# =======================
+appsettings.Development.json
+secrets.json
+*.usersecrets
+
+# =======================
+# Node / frontend
+# =======================
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.local
