@@ -19,12 +19,14 @@ public class PatientCaseConfiguration : IEntityTypeConfiguration<PatientCase>
         .IsRowVersion()
         .IsConcurrencyToken();
 
-    builder.HasMany(typeof(Message), "_messages")
+    builder.HasMany(x => x.Messages)
         .WithOne()
         .HasForeignKey("PatientCaseId")
         .OnDelete(DeleteBehavior.Cascade);
 
-    builder.Navigation("_messages")
-        .UsePropertyAccessMode(PropertyAccessMode.Field);
+    builder.Metadata
+        .FindNavigation(nameof(PatientCase.Messages))!
+        .SetPropertyAccessMode(PropertyAccessMode.Field);
+
     }
 }

@@ -24,6 +24,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<RegisterUserCommandHandler>();
+
 #endregion
 
 #region Authentication (JWT)

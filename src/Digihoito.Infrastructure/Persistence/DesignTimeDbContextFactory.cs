@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+
 namespace Digihoito.Infrastructure.Persistence;
 
 public class DesignTimeDbContextFactory 
@@ -8,15 +9,19 @@ public class DesignTimeDbContextFactory
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
+        var basePath = Path.Combine(
+            Directory.GetParent(Directory.GetCurrentDirectory())!.FullName,
+            "Digihoito.Api");
+
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../Digihoito.Api"))
+            .SetBasePath(basePath)
             .AddJsonFile("appsettings.json", optional: false)
             .Build();
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
         optionsBuilder.UseSqlServer(
-            configuration.GetConnectionString("Default"));
+            configuration.GetConnectionString("DefaultConnection"));
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
