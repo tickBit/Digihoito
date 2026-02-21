@@ -8,19 +8,23 @@ public class PatientCaseConfiguration : IEntityTypeConfiguration<PatientCase>
 {
     public void Configure(EntityTypeBuilder<PatientCase> builder)
     {
-        builder.ToTable("PatientCases");
+    builder.ToTable("PatientCases");
 
-        builder.HasKey(x => x.Id);
+    builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired();
+    builder.Property(x => x.CreatedAt)
+        .IsRequired();
 
-        builder.HasMany(typeof(Message), "_messages")
-            .WithOne()
-            .HasForeignKey("PatientCaseId")
-            .OnDelete(DeleteBehavior.Cascade);
+    builder.Property(x => x.RowVersion)
+        .IsRowVersion()
+        .IsConcurrencyToken();
 
-        builder.Navigation("_messages")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+    builder.HasMany(typeof(Message), "_messages")
+        .WithOne()
+        .HasForeignKey("PatientCaseId")
+        .OnDelete(DeleteBehavior.Cascade);
+
+    builder.Navigation("_messages")
+        .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

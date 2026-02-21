@@ -22,13 +22,15 @@ public sealed class PatientCase
     public DateTime? LockedAt { get; private set; }
     public Guid? ClosedByAdminId { get; private set; }
 
+    public byte[] RowVersion { get; private set; } = default!;
+
     public IReadOnlyCollection<Message> Messages => _messages.AsReadOnly();
 
     public static PatientCase Create(Guid patientId, string initialMessage)
     {
         return new PatientCase(patientId, initialMessage);
     }
-
+    
     public void AddMessage(Guid senderId, string content)
     {
         if (LockedAt != null)
