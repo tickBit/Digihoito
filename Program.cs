@@ -28,6 +28,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 
+builder.Services.AddScoped<ICaseRepository, CaseRepository>();
+builder.Services.AddScoped<CreateCaseCommandHandler>();
+builder.Services.AddScoped<AddMessageCommandHandler>();
+
 #endregion
 
 #region Authentication (JWT)
