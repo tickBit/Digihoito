@@ -38,6 +38,8 @@ builder.Services.AddScoped<ICaseRepository, CaseRepository>();
 builder.Services.AddScoped<CreateCaseCommandHandler>();
 builder.Services.AddScoped<AddMessageCommandHandler>();
 
+builder.Services.AddScoped<LockCaseCommandHandler>();
+
 #endregion
 
 #region Authentication (JWT)

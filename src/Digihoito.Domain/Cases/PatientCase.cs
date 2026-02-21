@@ -55,4 +55,20 @@ public sealed class PatientCase
         LockedAt = DateTime.UtcNow;
         ClosedByAdminId = adminId;
     }
+    
+    
+    private bool _isLocked;
+    public bool IsLocked => _isLocked;
+
+    public void Lock(UserRole role)
+    {
+        if (role != UserRole.Admin)
+            throw new InvalidOperationException("Only admin can lock case");
+
+        if (_isLocked)
+            return;
+
+        _isLocked = true;
+    }
+
 }

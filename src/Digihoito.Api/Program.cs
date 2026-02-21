@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 
 using Digihoito.Domain.Users;
+using Digihoito.Application.Cases;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,9 +82,16 @@ app.MapPost("/cases/message", async (
 app.MapPost("/cases/{id}/lock", async (
     Guid id,
     LockCaseCommandHandler handler,
+    ClaimsPrincipal user,
     CancellationToken token) =>
 {
-    await handler.Handle(id, token);
+    var role = Enum.Parse<UserRole>(
+        user.FindFirst(ClaimTypes.Role)!.Value);
+
+    var command = new LockCaseCommand(id, role);
+
+    await handler.Handle(command, token);
+
     return Results.Ok();
 })
 .RequireAuthorization(policy => policy.RequireRole("Admin"));
