@@ -1,5 +1,7 @@
 namespace Digihoito.Domain.Cases;
 
+using Digihoito.Domain.Users;
+
 public sealed class PatientCase
 {
     private readonly List<Message> _messages = new();
@@ -12,7 +14,8 @@ public sealed class PatientCase
         PatientId = patientId;
         CreatedAt = DateTime.UtcNow;
 
-        AddMessage(patientId, initialMessage);
+        var message = new Message(Id, patientId, initialMessage);
+        _messages.Add(message);
     }
 
     public Guid Id { get; private set; }
@@ -31,13 +34,14 @@ public sealed class PatientCase
         return new PatientCase(patientId, initialMessage);
     }
     
-    public void AddMessage(Guid senderId, string content)
+
+    public void AddMessage(Guid senderId, string content, UserRole role)
     {
         if (LockedAt != null)
-            throw new InvalidOperationException("Case is locked.");
+            throw new InvalidOperationException("Case is locked");
 
-        if (string.IsNullOrWhiteSpace(content))
-            throw new ArgumentException("Message content cannot be empty.");
+        if (role == UserRole.User && senderId != PatientId)
+            throw new InvalidOperationException("Not case owner");
 
         var message = new Message(Id, senderId, content);
         _messages.Add(message);

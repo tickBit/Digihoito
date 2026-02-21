@@ -5,6 +5,12 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using MyProject.Infrastructure;
 using MyProject.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 
 var builder = WebApplication.CreateBuilder(args);
 
