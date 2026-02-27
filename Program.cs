@@ -39,6 +39,7 @@ builder.Services.AddScoped<CreateCaseCommandHandler>();
 builder.Services.AddScoped<AddMessageCommandHandler>();
 
 builder.Services.AddScoped<LockCaseCommandHandler>();
+builder.Services.AddScoped<GetCaseQueryHandler>();
 
 #endregion
 

@@ -1,0 +1,1 @@
+public record GetCaseQuery(Guid CaseId);
