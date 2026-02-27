@@ -37,13 +37,17 @@ public sealed class PatientCase
 
     public void AddMessage(Guid senderId, string content, UserRole role)
     {
-        if (LockedAt != null)
+        if (_isLocked)
             throw new InvalidOperationException("Case is locked");
 
         if (role == UserRole.User && senderId != PatientId)
             throw new InvalidOperationException("Not case owner");
 
-        var message = new Message(Id, senderId, content);
+        var message = new Message(
+            Id,           // PatientCase.Id
+            senderId,
+            content);
+
         _messages.Add(message);
     }
 

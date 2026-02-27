@@ -29,6 +29,23 @@ app.MapPost("/register", async (
     return Results.Ok();
 });
 
+app.MapPost("/cases/{id}/read", async (
+    Guid id,
+    MarkMessagesAsReadCommandHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{
+    var role = Enum.Parse<UserRole>(
+        user.FindFirst(ClaimTypes.Role)!.Value);
+
+    var command = new MarkMessagesAsReadCommand(id, role);
+
+    await handler.Handle(command, token);
+
+    return Results.Ok();
+})
+.RequireAuthorization();
+
 app.MapPost("/cases/{id}/messages", async (
     Guid id,
     string content,

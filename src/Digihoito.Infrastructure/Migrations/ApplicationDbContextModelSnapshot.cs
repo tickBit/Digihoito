@@ -35,6 +35,12 @@ namespace Digihoito.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsReadByAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReadByPatient")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("PatientCaseId")
                         .HasColumnType("uniqueidentifier");
 
