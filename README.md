@@ -1,4 +1,4 @@
-# Projektio on tekeillä
+# Projekti on tekeillä
 
 Vielä kovin keskeneräinen projekti / still unfinished project
 
