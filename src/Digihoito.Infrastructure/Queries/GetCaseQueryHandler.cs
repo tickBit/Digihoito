@@ -17,39 +17,61 @@ public class GetCaseQueryHandler
     GetCaseQuery query,
     CancellationToken cancellationToken)
 {
-    var caseQuery = _context.PatientCases
-        .Where(c => c.Id == query.CaseId);
+    var patientCase = await _context.PatientCases
+        .Include(c => c.Messages)
+        .FirstOrDefaultAsync(
+            c => c.Id == query.CaseId &&
+            (query.Role == UserRole.Admin ||
+             c.PatientId == query.UserId),
+            cancellationToken);
 
-    if (query.Role == UserRole.User)
+    if (patientCase == null)
+        return null;
+
+    // 🔹 MARK AS READ (vain toisen osapuolen viestit)
+    if (query.Role == UserRole.Admin)
     {
-        caseQuery = caseQuery
-            .Where(c => c.PatientId == query.UserId);
+        foreach (var message in patientCase.Messages
+                     .Where(m => m.SenderId == patientCase.PatientId &&
+                                 !m.IsReadByAdmin))
+        {
+            message.MarkAsReadByAdmin();
+        }
+    }
+    else
+    {
+        foreach (var message in patientCase.Messages
+                     .Where(m => m.SenderId != patientCase.PatientId &&
+                                 !m.IsReadByPatient))
+        {
+            message.MarkAsReadByPatient();
+        }
     }
 
-    return await caseQuery
-        .Select(c => new CaseDto(
-    c.Id,
-    c.IsLocked,
+    await _context.SaveChangesAsync(cancellationToken);
 
-    query.Role == UserRole.Admin
-        ? c.Messages.Count(m =>
-            m.SenderId == c.PatientId
-            && !m.IsReadByAdmin)
-        : c.Messages.Count(m =>
-            m.SenderId != c.PatientId
-            && !m.IsReadByPatient),
+    // 🔹 Lasketaan unread uudelleen (nyt 0)
+    var unreadCount = query.Role == UserRole.Admin
+        ? patientCase.Messages.Count(m =>
+            m.SenderId == patientCase.PatientId &&
+            !m.IsReadByAdmin)
+        : patientCase.Messages.Count(m =>
+            m.SenderId != patientCase.PatientId &&
+            !m.IsReadByPatient);
 
-    c.Messages
-        .OrderBy(m => m.CreatedAt)
-        .Select(m => new MessageDto(
-            m.Id,
-            m.SenderId,
-            m.Content,
-            m.CreatedAt,
-            m.IsReadByAdmin,
-            m.IsReadByPatient))
-        .ToList()
-        ))
-        .FirstOrDefaultAsync(cancellationToken);
+    return new CaseDto(
+        patientCase.Id,
+        patientCase.IsLocked,
+        unreadCount,
+        patientCase.Messages
+            .OrderBy(m => m.CreatedAt)
+            .Select(m => new MessageDto(
+                m.Id,
+                m.SenderId,
+                m.Content,
+                m.CreatedAt,
+                m.IsReadByAdmin,
+                m.IsReadByPatient))
+            .ToList());
     }
 }
