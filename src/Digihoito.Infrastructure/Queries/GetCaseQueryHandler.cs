@@ -28,24 +28,27 @@ public class GetCaseQueryHandler
 
     return await caseQuery
         .Select(c => new CaseDto(
-            c.Id,
-            c.IsLocked,
+    c.Id,
+    c.IsLocked,
 
-            // 🔹 UNREAD COUNT
-            query.Role == UserRole.Admin
-                ? c.Messages.Count(m => !m.IsReadByAdmin)
-                : c.Messages.Count(m => !m.IsReadByPatient),
+    query.Role == UserRole.Admin
+        ? c.Messages.Count(m =>
+            m.SenderId == c.PatientId
+            && !m.IsReadByAdmin)
+        : c.Messages.Count(m =>
+            m.SenderId != c.PatientId
+            && !m.IsReadByPatient),
 
-            c.Messages
-                .OrderBy(m => m.CreatedAt)
-                .Select(m => new MessageDto(
-                    m.Id,
-                    m.SenderId,
-                    m.Content,
-                    m.CreatedAt,
-                    m.IsReadByAdmin,
-                    m.IsReadByPatient))
-                .ToList()
+    c.Messages
+        .OrderBy(m => m.CreatedAt)
+        .Select(m => new MessageDto(
+            m.Id,
+            m.SenderId,
+            m.Content,
+            m.CreatedAt,
+            m.IsReadByAdmin,
+            m.IsReadByPatient))
+        .ToList()
         ))
         .FirstOrDefaultAsync(cancellationToken);
     }
