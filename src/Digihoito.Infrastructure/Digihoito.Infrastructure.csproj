@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Digihoito.Application\Digihoito.Application.csproj" />
     <ProjectReference Include="..\Digihoito.Domain\Digihoito.Domain.csproj" />
+    <ProjectReference Include="..\Digihoito.Application\Digihoito.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

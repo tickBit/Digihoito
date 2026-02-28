@@ -2,9 +2,9 @@ using System.Security.Claims;
 using Digihoito.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-
 using Digihoito.Domain.Users;
 using Digihoito.Application.Cases;
+using Digihoito.Application.Cases.Queries;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +43,28 @@ app.MapPost("/cases/{id}/read", async (
     await handler.Handle(command, token);
 
     return Results.Ok();
+})
+.RequireAuthorization();
+
+app.MapGet("/cases/{id}", async (
+    Guid id,
+    GetCaseQueryHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{
+    var userId = Guid.Parse(
+        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var role = Enum.Parse<UserRole>(
+        user.FindFirst(ClaimTypes.Role)!.Value);
+
+    var result = await handler.Handle(
+        new GetCaseQuery(id, userId, role),
+        token);
+
+    return result is null
+        ? Results.NotFound()
+        : Results.Ok(result);
 })
 .RequireAuthorization();
 

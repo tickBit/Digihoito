@@ -1,7 +1,8 @@
+using Digihoito.Domain.Users;
 using Digihoito.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Digihoito.Infrastructure.Queries;
+using Digihoito.Application.Cases.Queries;
 
 public class GetCaseQueryHandler
 {
@@ -13,25 +14,39 @@ public class GetCaseQueryHandler
     }
 
     public async Task<CaseDto?> Handle(
-        GetCaseQuery query,
-        CancellationToken cancellationToken)
+    GetCaseQuery query,
+    CancellationToken cancellationToken)
+{
+    var caseQuery = _context.PatientCases
+        .Where(c => c.Id == query.CaseId);
+
+    if (query.Role == UserRole.User)
     {
-        return await _context.PatientCases
-            .Where(c => c.Id == query.CaseId)
-            .Select(c => new CaseDto(
-                c.Id,
-                c.IsLocked,
-                c.Messages
-                    .OrderBy(m => m.CreatedAt)
-                    .Select(m => new MessageDto(
-                        m.Id,
-                        m.SenderId,
-                        m.Content,
-                        m.CreatedAt,
-                        m.IsReadByAdmin,
-                        m.IsReadByPatient))
-                    .ToList()
-            ))
-            .FirstOrDefaultAsync(cancellationToken);
+        caseQuery = caseQuery
+            .Where(c => c.PatientId == query.UserId);
+    }
+
+    return await caseQuery
+        .Select(c => new CaseDto(
+            c.Id,
+            c.IsLocked,
+
+            // 🔹 UNREAD COUNT
+            query.Role == UserRole.Admin
+                ? c.Messages.Count(m => !m.IsReadByAdmin)
+                : c.Messages.Count(m => !m.IsReadByPatient),
+
+            c.Messages
+                .OrderBy(m => m.CreatedAt)
+                .Select(m => new MessageDto(
+                    m.Id,
+                    m.SenderId,
+                    m.Content,
+                    m.CreatedAt,
+                    m.IsReadByAdmin,
+                    m.IsReadByPatient))
+                .ToList()
+        ))
+        .FirstOrDefaultAsync(cancellationToken);
     }
 }
