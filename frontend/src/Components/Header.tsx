@@ -1,12 +1,14 @@
 const Header = () => {
   return (
     <>
-    <header className="header">
-        <h3 className="page-title">Digihoito</h3>
+    <header>
+    <div className="navbar">
+        <h2 className="heading">Digihoito</h2>
         <div className="nav-links">
             <a className="nav-link" href="/patients">Henkilökunta</a>
             <a className="nav-link" href="/doctors">Potilaat</a>
         </div>
+    </div>
     </header>
     </>
   )
