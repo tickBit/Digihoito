@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    /* Language */
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "useDefineForClassFields": true,
+    
+    /* Modules */
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    /* React */
+    "jsx": "react-jsx",
+
+    /* Strictness */
+    "strict": true,
+    "noImplicitAny": true,
+
+    /* Interop */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* Tooling */
+    "skipLibCheck": true,
+    "noEmit": true,
+
+    /* Optional: path alias */
+    "baseUrl": "./src"
+  },
+  "include": ["src"]
+}
