@@ -18,3 +18,12 @@ body {
   top: 0;
   left: 0;
 }
+
+button {
+  background-color: #535bf2;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}

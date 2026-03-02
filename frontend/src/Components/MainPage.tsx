@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../auth/useAuth';
 import { useNavigate } from 'react-router-dom';
+import './../App.css';
+import Header from './Header';
 
 const MainPage = () => {
     
@@ -18,10 +20,13 @@ const MainPage = () => {
     }, [token, navigate]);
     
     return (
+        <>
+        <Header />
         <div>
             <h1>Tervetuloa {userEmail}!</h1>
             <p>Olet kirjautunut sisään onnistuneesti.</p>
         </div>
+        </>
     );
 }
 

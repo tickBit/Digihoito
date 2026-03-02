@@ -1,26 +1,18 @@
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import Header from "./Components/Header";
 import './App.css';
-import MainPage from './Components/MainPage';
-import Register from './Components/Register';
-import Login from './Components/Login';
-import { AuthProvider } from './auth/AuthProvider';
+import { useAuth } from './auth/useAuth';
+
+import Header from "./Components/Header";
 
 function App() {
 
+  const { token } = useAuth();
+  
   return (
     <>
-      <AuthProvider>
-      <Router>
-          <Routes>
-            <Route path="/" element={<Header />} />
-            <Route path="/main" element={<MainPage />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-      </Router>
-      </AuthProvider>
+      <Header />
       <div className="content">
+        {!token && (
+          <>
         <h1>Tervetuloa!</h1>
         <br />
         <p>Uudet käyttäjät, olkaa hyvät ja rekisteröitykää ensin.</p>
@@ -28,6 +20,8 @@ function App() {
         <div className="image-div">
           <img className="doctor-image" src="./assets/doctor-patient.jpg" alt="Doctor and patient" />
         </div>
+          </>
+        )}
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-
+import { Link } from 'react-router-dom';
+import './../App.css';
 interface DropdownProps {
   label: string;
   items: Array<{ href: string; label: string }>;
@@ -30,14 +31,14 @@ const Dropdown = ({ label, items, href = "#" }: DropdownProps) => {
 
   return (
     <div className="dropdown-wrapper" ref={dropdownRef} >
-      <a href={href} onClick={toggleDropdown}>{label}</a>
+      <a className="nav-link" href={href} onClick={toggleDropdown}>{label}</a>
       {isOpen && (
         <nav className="dropdown-menu">
           <div className="dropdown-content">
             {items.map((item) => (
-              <a key={item.href} href={item.href}>
+              <Link className='nav-link' key={item.href} to={item.href}>
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
         </nav>

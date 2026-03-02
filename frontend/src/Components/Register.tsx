@@ -1,8 +1,11 @@
 import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
 import { useAuth } from '../auth/useAuth';
+
+import './../App.css';
+import Header from './Header';
+
 
 const Register = () => {
 
@@ -39,15 +42,18 @@ const Register = () => {
     }
               
     return (
+        <>
+        <Header />
         <div className="register-login">
             <h1>Register</h1>
             <form onSubmit={handleRegister}>
-                <input type="text" name="email" placeholder="Email" required />
-                <input type="password" name="password" placeholder="Password" required />
-                <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+                <input className="form-field" type="text" name="email" placeholder="Email" required />
+                <input className="form-field" type="password" name="password" placeholder="Password" required />
+                <input className="form-field" type="password" name="confirmPassword" placeholder="Confirm Password" required />
                 <button type="submit">Register</button>
             </form>
         </div>
+        </>
     );
             
 }
