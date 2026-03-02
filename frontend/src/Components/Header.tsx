@@ -15,8 +15,8 @@ const Header = () => {
     <div className="navbar">
         <h2 onClick={() => token !== null ? navigate("/main") : navigate("/")} className="heading">Digihoito</h2>
         <div className="nav-links">
-            <Link className="nav-link" to="/patients">Henkilökunta</Link>
-            <Link className="nav-link" to="/doctors">Potilaat</Link>
+            <Link className="nav-link" to="/doctors">Henkilökunta</Link>
+            <Link className="nav-link" to="/patients">Potilaat</Link>
         </div>
     </div>
     </header>
