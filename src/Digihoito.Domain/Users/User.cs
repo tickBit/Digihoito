@@ -31,4 +31,16 @@ public sealed class User
     public bool IsActive { get; private set; }
 
     public bool IsAdmin() => Role == UserRole.Admin;
+    
+    public static User Create(
+    string email,
+    string passwordHash,
+    UserRole role)
+    {
+        return new User(
+            Guid.NewGuid(),
+            email,
+            passwordHash,
+            role);
+    }
 }

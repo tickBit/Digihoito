@@ -1,4 +1,6 @@
-public class PasswordHasher : IPasswordHasher
+namespace Digihoito.Infrastructure.Persistence.Security;
+
+public class PasswordHasher : IAppPasswordHasher
 {
     public string HashPassword(string password)
     {

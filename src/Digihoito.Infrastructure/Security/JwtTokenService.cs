@@ -1,13 +1,13 @@
+namespace Digihoito.Infrastructure.Persistence.Security;
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Digihoito.Domain.Users;
-using Digihoito.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-
-public class JwtTokenService : ITokenService
+public class JwtTokenService : IJwtTokenService
 {
     private readonly IConfiguration _configuration;
 
@@ -16,10 +16,16 @@ public class JwtTokenService : ITokenService
         _configuration = configuration;
     }
 
-    public string CreateToken(User user)
+    public string GenerateToken(Guid userId, string role, string email)
     {
         var key = _configuration["Jwt:Key"];
-        var issuer = _configuration["Jwt:Issuer"];
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Role, role),
+            new Claim(ClaimTypes.Email, email)
+        };
 
         var securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(key!));
@@ -28,18 +34,10 @@ public class JwtTokenService : ITokenService
             securityKey,
             SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Role.ToString()),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
-
         var token = new JwtSecurityToken(
-            issuer,
-            null,
-            claims,
-            expires: DateTime.UtcNow.AddMinutes(10),
+            issuer: _configuration["Jwt:Issuer"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(12),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

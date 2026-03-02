@@ -1,27 +1,41 @@
+namespace Digihoito.Application.Users;
 using Digihoito.Domain.Users;
+using Digihoito.Application.Interfaces;
+
 public class RegisterUserCommandHandler
 {
-    private readonly IUserRepository _repository;
-    private readonly IPasswordHasher _hasher;
+    private readonly IUserRepository _userRepository;
+    private readonly IAppPasswordHasher _passwordHasher;
+    private readonly IJwtTokenService _jwtTokenService;
 
     public RegisterUserCommandHandler(
-        IUserRepository repository,
-        IPasswordHasher hasher)
+        IUserRepository userRepository,
+        IAppPasswordHasher passwordHasher,
+        IJwtTokenService jwtTokenService)
     {
-        _repository = repository;
-        _hasher = hasher;
+        _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
+        _jwtTokenService = jwtTokenService;
     }
 
-    public async Task Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(
+        RegisterUserCommand command,
+        CancellationToken cancellationToken)
     {
-        if (await _repository.EmailExistsAsync(command.Email, cancellationToken))
-            throw new InvalidOperationException("Email already exists.");
+        var passwordHash = _passwordHasher.HashPassword(command.Password);
 
-        var user = User.Register(
-            Guid.NewGuid(),
+        var user = User.Create(
             command.Email,
-            _hasher.HashPassword(command.Password));
+            passwordHash,
+            command.Role);
 
-        await _repository.AddAsync(user, cancellationToken);
+        await _userRepository.AddAsync(user, cancellationToken);
+
+        var token = _jwtTokenService.GenerateToken(
+            user.Id,
+            user.Role.ToString(),
+            user.Email);
+
+        return new TokenResponse(token);
     }
 }

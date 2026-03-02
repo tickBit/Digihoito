@@ -5,6 +5,8 @@ using Digihoito.Application.Cases.Queries;
 using Digihoito.Domain.Users;
 using Digihoito.Infrastructure.Persistence;
 using Digihoito.Infrastructure.Persistence.Repositories;
+using Digihoito.Infrastructure.Persistence.Security;
+using Digihoito.Application.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,6 +23,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 #region Handlers (DI)
 
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<CreateCaseCommandHandler>();
 builder.Services.AddScoped<AddMessageCommandHandler>();
@@ -29,7 +32,7 @@ builder.Services.AddScoped<GetCaseQueryHandler>();
 builder.Services.AddScoped<LockCaseCommandHandler>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICaseRepository, CaseRepository>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IAppPasswordHasher, PasswordHasher>();
 
 #endregion
 
@@ -88,10 +91,11 @@ app.MapPost("/register", async (
     RegisterUserCommand command,
     RegisterUserCommandHandler handler,
     CancellationToken token) =>
-{
-    await handler.Handle(command, token);
-    return Results.Ok();
-});
+    {
+        var result = await handler.Handle(command, token);
+
+        return Results.Ok(result);
+    });
 
 app.MapPost("/cases", async (
     CreateCaseCommand command,
