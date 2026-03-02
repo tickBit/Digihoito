@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './../App.css';
-interface DropdownProps {
+import React from 'react';
+
+export interface DropdownItem {
   label: string;
-  items: Array<{ href: string; label: string }>;
-  href?: string;
+  href: string;
+  onClick?: () => void;     // added optional onClick
+}
+
+export interface DropdownProps {
+  label: string;
+  href: string;
+  items: DropdownItem[];
 }
 
 const Dropdown = ({ label, items, href = "#" }: DropdownProps) => {
@@ -36,7 +44,7 @@ const Dropdown = ({ label, items, href = "#" }: DropdownProps) => {
         <nav className="dropdown-menu">
           <div className="dropdown-content">
             {items.map((item) => (
-              <Link className='nav-link' key={item.href} to={item.href}>
+              <Link className='nav-link' key={item.href} to={item.href} onClick={item.onClick}>
                 {item.label}
               </Link>
             ))}

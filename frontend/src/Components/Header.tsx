@@ -10,7 +10,7 @@ const Header = () => {
   
   const navigate = useNavigate();
   
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
     
   return (
     <>
@@ -27,14 +27,13 @@ const Header = () => {
             />
             
             <Dropdown
-              label="Potilaat"
-              href="#/patients"
-              items={[
-                { label: 'Register', href: '/register' },
-                { label: 'Login', href: '/login_patient' }
-            ]}
-          />
-        
+              {...token !== null ? { label: 'Potilaat', href: '#/Potilaat', items: [
+                { label: 'Logout', href: '#/logout', onClick: () => logout() }
+              ] } : { label: 'Potilaat', href: '#/Potilaat', items: [
+                { label: 'Login', href: '/login_patient' },
+                { label: 'Register', href: '/register' }
+              ] }}
+            />
         </div>
     </div>
     </header>
