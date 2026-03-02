@@ -6,11 +6,7 @@ import { useAuth } from '../auth/useAuth';
 import './../App.css';
 import Header from './Header';
 
-interface RegisterProps {
-    role: number;
-}
-
-const Register = (props:RegisterProps) => {
+const Register = () => {
 
     const navigate = useNavigate();
     
@@ -30,7 +26,7 @@ const Register = (props:RegisterProps) => {
         }
  
         // Make API call to register the user
-        axios.post('http://localhost:5199/register', { email, password, role: props.role }, {
+        axios.post('http://localhost:5199/register', { email, password, role: 1 }, {
                    headers: {
                     "Content-Type": "application/json",
             }})
