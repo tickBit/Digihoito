@@ -22,7 +22,7 @@ const Header = () => {
               label="Henkilökunta"
               href="#/personel"
               items={[
-                { label: 'Register', href: '/register' },
+                { label: 'Register', href: '/register_personel' },
                 { label: 'Login', href: '/login' }
               ]}
             />
@@ -31,7 +31,7 @@ const Header = () => {
               label="Potilaat"
               href="#/patients"
               items={[
-                { label: 'Register', href: '/register' },
+                { label: 'Register', href: '/register_patient' },
                 { label: 'Login', href: '/login' }
             ]}
           />
