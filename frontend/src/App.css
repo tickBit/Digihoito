@@ -1,5 +1,5 @@
 .navbar {
-  background-color: #eddcdc;
+  background-color: #7792cd;
   width: 100%;
   height: 96px;
   display: flex;
@@ -29,7 +29,7 @@
 }
 
 .nav-link:hover {
-  color: #535bf2;
+  color: #e3e3ec;
 }
 
 .page-title {
