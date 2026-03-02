@@ -33,6 +33,7 @@ builder.Services.AddScoped<LockCaseCommandHandler>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICaseRepository, CaseRepository>();
 builder.Services.AddScoped<IAppPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<LoginUserCommandHandler>();
 
 #endregion
 
@@ -135,6 +136,18 @@ app.MapGet("/cases/{id}", async (
         : Results.Ok(result);
 })
 .RequireAuthorization();
+
+app.MapPost("/login", async (
+    LoginUserCommand command,
+    LoginUserCommandHandler handler,
+    CancellationToken token) =>
+    {
+        var result = await handler.Handle(command, token);
+
+        return result is null
+            ? Results.Unauthorized()
+            : Results.Ok(result);
+    });
 
 #endregion
 
