@@ -1,10 +1,13 @@
 import React from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
 
 const Register = () => {
 
+    const navigate = useNavigate();
+    
     const { login } = useAuth();
        
     const handleRegister = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -26,6 +29,8 @@ const Register = () => {
                 alert('Registration successful');
                 
                 login(email, response.data.token);
+                navigate('/main');
+                
             })
             .catch(error => {
                 alert('Registration failed: ' + error.message);

@@ -1,12 +1,22 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
+
 const Header = () => {
+  
+  const navigate = useNavigate();
+  
+  const { token } = useAuth();
+    
   return (
     <>
     <header>
     <div className="navbar">
-        <h2 className="heading">Digihoito</h2>
+        <h2 onClick={() => token !== null ? navigate("/main") : navigate("/")} className="heading">Digihoito</h2>
         <div className="nav-links">
-            <a className="nav-link" href="/patients">Henkilökunta</a>
-            <a className="nav-link" href="/doctors">Potilaat</a>
+            <Link className="nav-link" to="/patients">Henkilökunta</Link>
+            <Link className="nav-link" to="/doctors">Potilaat</Link>
         </div>
     </div>
     </header>

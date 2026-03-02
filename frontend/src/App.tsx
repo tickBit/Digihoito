@@ -1,11 +1,25 @@
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Header from "./Components/Header";
 import './App.css';
+import MainPage from './Components/MainPage';
+import Register from './Components/Register';
+import Login from './Components/Login';
+import { AuthProvider } from './auth/AuthProvider';
 
 function App() {
 
   return (
     <>
-      <Header />
+      <AuthProvider>
+      <Router>
+          <Routes>
+            <Route path="/" element={<Header />} />
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+      </Router>
+      </AuthProvider>
       <div className="content">
         <h1>Tervetuloa!</h1>
         <br />
@@ -16,7 +30,7 @@ function App() {
         </div>
       </div>
     </>
-  )
+  );
 }
 
 export default App;
