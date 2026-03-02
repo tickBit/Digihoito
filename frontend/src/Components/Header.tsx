@@ -22,7 +22,6 @@ const Header = () => {
               label="Henkilökunta"
               href="#/personel"
               items={[
-                { label: 'Register', href: '/register_personel' },
                 { label: 'Login', href: '/login' }
               ]}
             />
