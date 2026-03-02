@@ -1,5 +1,7 @@
 namespace Digihoito.Domain.Cases;
 
+using Digihoito.Domain.Users;
+
 public class Message
 {
     public Guid Id { get; private set; }
@@ -35,5 +37,14 @@ public class Message
     public void MarkAsReadByPatient()
     {
         IsReadByPatient = true;
+    }
+    
+    public void MarkAsRead(UserRole role)
+    {
+        if (role == UserRole.Admin)
+            IsReadByAdmin = true;
+
+        if (role == UserRole.User)
+            IsReadByPatient = true;
     }
 }
