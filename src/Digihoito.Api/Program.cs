@@ -98,6 +98,31 @@ app.MapPost("/register", async (
         return Results.Ok(result);
     });
 
+app.MapPost("/cases/{id}/messages", async (
+    Guid id,
+    string content,
+    AddMessageCommandHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{
+    var userId = Guid.Parse(
+        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var role = Enum.Parse<UserRole>(
+        user.FindFirst(ClaimTypes.Role)!.Value);
+
+    var command = new AddMessageCommand(
+        id,
+        userId,
+        role,
+        content);
+
+    await handler.Handle(command, token);
+
+    return Results.Ok();
+})
+.RequireAuthorization();
+
 app.MapPost("/cases", async (
     CreateCaseCommand command,
     CreateCaseCommandHandler handler,
