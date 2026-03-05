@@ -9,6 +9,14 @@ const MainPage = () => {
     const { token, userEmail } = useAuth();
     const navigate = useNavigate();
     
+    const handleSubmit = (e: React.SubmitEvent) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget as HTMLFormElement);
+        const message = formData.get('message') as string;
+        
+        console.log('Lähetetty viesti:', message);
+    };
+    
     useEffect(() => {
         
         if (!token) {
@@ -22,10 +30,17 @@ const MainPage = () => {
     return (
         <>
         <Header />
-        <div>
+        <div className='welcome'>
             <h1>Tervetuloa {userEmail}!</h1>
             <p>Olet kirjautunut sisään onnistuneesti.</p>
         </div>
+        
+            <form className="contact-form" onSubmit={handleSubmit}>
+                <h2>Voit ottaa yhteyttä asiantuntijaamme</h2>
+                <label htmlFor="message">Viesti:</label>
+                <textarea id="message" name="message" required></textarea>
+                <button type="submit">Lähetä</button>
+            </form>
         </>
     );
 }
