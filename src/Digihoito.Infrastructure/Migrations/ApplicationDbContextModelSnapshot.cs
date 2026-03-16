@@ -44,11 +44,11 @@ namespace Digihoito.Infrastructure.Migrations
                     b.Property<Guid>("PatientCaseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SenderRole")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

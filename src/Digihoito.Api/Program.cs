@@ -6,10 +6,12 @@ using Digihoito.Domain.Users;
 using Digihoito.Infrastructure.Persistence;
 using Digihoito.Infrastructure.Persistence.Repositories;
 using Digihoito.Infrastructure.Persistence.Security;
+using Digihoito.Infrastructure.Queries;
 using Digihoito.Application.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Digihoito.Domain.Cases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -133,7 +135,9 @@ app.MapPost("/cases", async (
 {
     var userId = Guid.Parse(
         user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
+        
+    Console.WriteLine("Alku: "+command.InitialMessage);
+    
     var id = await handler.Handle(
         command with { PatientId = userId },
         token);
@@ -147,17 +151,35 @@ app.MapGet("/cases/{id}", async (
     GetCaseQueryHandler handler,
     ClaimsPrincipal user,
     CancellationToken token) =>
-{
+{   
     var userId = Guid.Parse(
         user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
+    
     var role = Enum.Parse<UserRole>(
         user.FindFirst(ClaimTypes.Role)!.Value);
-
+    
     var result = await handler.Handle(
         new GetCaseQuery(id, userId, role),
         token);
 
+    if (result == null)
+    {
+        Console.WriteLine("null");
+    } else
+    {
+        if (result == null)
+{
+    Console.WriteLine("Result: NULL");
+}
+else
+{
+    Console.WriteLine($"CaseId: {result.Id}");
+    Console.WriteLine($"Locked: {result.IsLocked}");
+    Console.WriteLine($"Unread: {result.UnreadCount}");
+    Console.WriteLine($"Messages: {result.Messages.Count}");
+}
+    }
+    
     return result is null
         ? Results.NotFound()
         : Results.Ok(result);

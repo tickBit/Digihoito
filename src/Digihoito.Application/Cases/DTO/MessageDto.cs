@@ -1,7 +1,10 @@
+namespace Digihoito.Application.Cases.DTO;
+using Digihoito.Domain.Users;
+
 public record MessageDto(
     Guid Id,
     Guid SenderId,
-    string SenderRole,
+    UserRole SenderRole,
     string Content,
     DateTime CreatedAt,
     bool IsReadByAdmin,

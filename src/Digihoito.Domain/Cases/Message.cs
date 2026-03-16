@@ -2,15 +2,33 @@ namespace Digihoito.Domain.Cases;
 
 using Digihoito.Domain.Users;
 
-public class Message
+public sealed class Message
 {
+    private Message() { } // EF
+
+    internal Message(
+        Guid patientCaseId,
+        Guid senderId,
+        UserRole senderRole,
+        string content)
+    {
+        Id = Guid.NewGuid();
+        PatientCaseId = patientCaseId;
+        SenderId = senderId;
+        SenderRole = senderRole;
+        Content = content;
+        CreatedAt = DateTime.UtcNow;
+    }
+
     public Guid Id { get; private set; }
 
     public Guid PatientCaseId { get; private set; }
 
     public Guid SenderId { get; private set; }
 
-    public string Content { get; private set; } = null!;
+    public UserRole SenderRole { get; private set; }
+
+    public string Content { get; private set; } = default!;
 
     public DateTime CreatedAt { get; private set; }
 
@@ -18,33 +36,16 @@ public class Message
 
     public bool IsReadByPatient { get; private set; }
 
-    private Message() { } // EF Core
-
-    internal Message(Guid patientCaseId, Guid senderId, string content)
-    {
-        Id = Guid.NewGuid();
-        PatientCaseId = patientCaseId;
-        SenderId = senderId;
-        Content = content;
-        CreatedAt = DateTime.UtcNow;
-    }
-
-    public void MarkAsReadByAdmin()
-    {
-        IsReadByAdmin = true;
-    }
-
-    public void MarkAsReadByPatient()
-    {
-        IsReadByPatient = true;
-    }
-    
     public void MarkAsRead(UserRole role)
     {
-        if (role == UserRole.Admin)
-            IsReadByAdmin = true;
-
         if (role == UserRole.User)
+        {
             IsReadByPatient = true;
+        }
+    
+        if (role == UserRole.Admin)
+        {
+            IsReadByAdmin = true;
+        }
     }
 }

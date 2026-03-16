@@ -1,3 +1,7 @@
+namespace Digihoito.Domain.Cases;
+
+using Digihoito.Domain.Users;
+
 public class MarkMessagesAsReadCommandHandler
 {
     private readonly ICaseRepository _repository;

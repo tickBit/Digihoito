@@ -12,9 +12,10 @@ public class CaseRepository : ICaseRepository
         _context = context;
     }
 
-    public async Task AddAsync(PatientCase patientCase, CancellationToken cancellationToken)
+    public async Task AddAsync(PatientCase patientCase, CancellationToken token)
     {
-        await _context.PatientCases.AddAsync(patientCase, cancellationToken);
+        await _context.PatientCases.AddAsync(patientCase, token);
+        await _context.SaveChangesAsync(token);
     }
 
     public Task<PatientCase?> GetByIdAsync(Guid id, CancellationToken cancellationToken)

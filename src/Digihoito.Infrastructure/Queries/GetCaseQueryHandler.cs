@@ -1,8 +1,9 @@
-using Digihoito.Domain.Users;
-using Digihoito.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
+namespace Digihoito.Infrastructure.Queries;
 using Digihoito.Application.Cases.Queries;
+using Digihoito.Infrastructure.Persistence;
+using Digihoito.Domain.Users;
+using Microsoft.EntityFrameworkCore;
+using Digihoito.Application.Cases.DTO;
 
 public class GetCaseQueryHandler
 {
@@ -14,64 +15,38 @@ public class GetCaseQueryHandler
     }
 
     public async Task<CaseDto?> Handle(
-    GetCaseQuery query,
-    CancellationToken cancellationToken)
-{
-    var patientCase = await _context.PatientCases
-        .Include(c => c.Messages)
-        .FirstOrDefaultAsync(
-            c => c.Id == query.CaseId &&
-            (query.Role == UserRole.Admin ||
-             c.PatientId == query.UserId),
-            cancellationToken);
-
-    if (patientCase == null)
-        return null;
-
-    // 🔹 MARK AS READ (vain toisen osapuolen viestit)
-    if (query.Role == UserRole.Admin)
+        GetCaseQuery request,
+        CancellationToken cancellationToken)
     {
-        foreach (var message in patientCase.Messages
-                     .Where(m => m.SenderId == patientCase.PatientId &&
-                                 !m.IsReadByAdmin))
-        {
-            message.MarkAsReadByAdmin();
-        }
-    }
-    else
-    {
-        foreach (var message in patientCase.Messages
-                     .Where(m => m.SenderId != patientCase.PatientId &&
-                                 !m.IsReadByPatient))
-        {
-            message.MarkAsReadByPatient();
-        }
-    }
+        Console.WriteLine(request);
+        
+        var caseEntity = await _context.PatientCases
+            .Include(c => c.Messages)
+            .FirstOrDefaultAsync(
+                c => c.Id == request.CaseId,
+                cancellationToken);
 
-    await _context.SaveChangesAsync(cancellationToken);
+        if (caseEntity == null)
+            return null;
 
-    // 🔹 Lasketaan unread uudelleen (nyt 0)
-    var unreadCount = query.Role == UserRole.Admin
-        ? patientCase.Messages.Count(m =>
-            m.SenderId == patientCase.PatientId &&
-            !m.IsReadByAdmin)
-        : patientCase.Messages.Count(m =>
-            m.SenderId != patientCase.PatientId &&
-            !m.IsReadByPatient);
-
-    return new CaseDto(
-        patientCase.Id,
-        patientCase.IsLocked,
-        unreadCount,
-        patientCase.Messages
-            .OrderBy(m => m.CreatedAt)
-            .Select(m => new MessageDto(
-                m.Id,
-                m.SenderId,
-                m.Content,
-                m.CreatedAt,
-                m.IsReadByAdmin,
-                m.IsReadByPatient))
-            .ToList());
+        return new CaseDto(
+    caseEntity.Id,
+    caseEntity.IsLocked,
+    request.Role == UserRole.Admin
+        ? caseEntity.Messages.Count(m => !m.IsReadByAdmin)
+        : caseEntity.Messages.Count(m => !m.IsReadByPatient),
+    caseEntity.Messages
+        .OrderBy(m => m.CreatedAt)
+        .Select(m => new MessageDto(
+            m.Id,
+            m.SenderId,
+            m.SenderRole,
+            m.Content,
+            m.CreatedAt,
+            m.IsReadByAdmin,
+            m.IsReadByPatient
+        ))
+        .ToList()
+        );
     }
 }

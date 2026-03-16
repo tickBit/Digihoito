@@ -16,7 +16,7 @@ public class LockCaseCommandHandler
         if (patientCase == null)
             throw new InvalidOperationException("Case not found");
 
-        patientCase.Lock(command.Role);
+        patientCase.Lock(command.CaseId);
 
         await _repository.SaveChangesAsync(cancellationToken);
     }

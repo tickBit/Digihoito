@@ -1,3 +1,5 @@
+namespace Digihoito.Application.Cases;
+
 using Digihoito.Domain.Cases;
 
 public class CreateCaseCommandHandler
