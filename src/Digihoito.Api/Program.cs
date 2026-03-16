@@ -31,6 +31,7 @@ builder.Services.AddScoped<CreateCaseCommandHandler>();
 builder.Services.AddScoped<AddMessageCommandHandler>();
 builder.Services.AddScoped<MarkMessagesAsReadCommandHandler>();
 builder.Services.AddScoped<GetCaseQueryHandler>();
+builder.Services.AddScoped<GetAllCasesQueryHandler>();
 builder.Services.AddScoped<LockCaseCommandHandler>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICaseRepository, CaseRepository>();
@@ -127,6 +128,25 @@ app.MapPost("/cases/{id}/messages", async (
 })
 .RequireAuthorization();
 
+app.MapGet("/cases", async (
+    GetAllCasesQueryHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{
+    var userId = Guid.Parse(
+        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var role = Enum.Parse<UserRole>(
+        user.FindFirst(ClaimTypes.Role)!.Value);
+
+    var result = await handler.Handle(
+        new GetAllCasesQuery(userId, role),
+        token);
+
+    return Results.Ok(result);
+})
+.RequireAuthorization();
+           
 app.MapPost("/cases", async (
     CreateCaseCommand command,
     CreateCaseCommandHandler handler,
@@ -135,9 +155,7 @@ app.MapPost("/cases", async (
 {
     var userId = Guid.Parse(
         user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        
-    Console.WriteLine("Alku: "+command.InitialMessage);
-    
+            
     var id = await handler.Handle(
         command with { PatientId = userId },
         token);

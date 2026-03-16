@@ -14,23 +14,26 @@ const MainPage = () => {
     const { token, userEmail } = useAuth();
     const navigate = useNavigate();
     
-    /*
-    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    
+    const handleSecondarySubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget);
-        const message = formData.get('message') as string;
+        const message = formData.get('msg') as string;
 
         if (!caseId) return;
 
         try {
 
-            await httpClient.post(`/cases/${caseId}/messages`, {
-                content: message
+            await axios.post(`http://localhost:5199/cases/${caseId}/messages`, { content: message },
+            {    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
             });
 
-            const response = await httpClient.get(`/cases/${caseId}`);
+            const response = await axios.get(`http://localhost:5199/cases/${caseId}`);
 
             setMessages(response.data.messages);
 
@@ -42,7 +45,7 @@ const MainPage = () => {
 
         }
     };
-    */
+    
     
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 
@@ -62,6 +65,8 @@ const MainPage = () => {
 
                         const caseId = response.data;
                         setCaseId(caseId);
+                        
+                        e.currentTarget.reset();
                     });
 
 
@@ -85,9 +90,8 @@ const MainPage = () => {
 
                 // tässä oletetaan että backend palauttaa käyttäjän casen
                 const response = await axios.get(`http://localhost:5199/cases/${caseId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                }})
+                    headers: { Authorization: `Bearer ${token}`},
+                })
 
                 console.log(response.data);
                 setMessages(response.data.messages);
@@ -97,8 +101,26 @@ const MainPage = () => {
             }
         };
 
+        const fetchCases = async() => {
+            await axios.get("http://localhost:5199/cases", {
+                headers: { Authorization: `Bearer ${token}` },
+                
+            }).then(response => {
+                console.log(response.data);
+                setMessages(response.data);
+            }).catch(error => {
+                console.log(error);
+            })
+        }
+        
         if (caseId !== null) fetchCase(caseId);
 
+        if (token) fetchCases();
+        
+        return () => {
+                
+        }
+        
     }, [token, navigate, caseId]);
     
     return (
@@ -125,7 +147,12 @@ const MainPage = () => {
                 </div>
 
             ))}
-        
+            <form className="chat-form" onSubmit={handleSecondarySubmit}>
+                <h2>Vastaa viestiin</h2>
+                <textarea id="msg" name="msg" required></textarea>
+                <br />
+                <button type="submit">Lähetä</button>
+            </form>
         </div>
 
             <form className="contact-form" onSubmit={handleSubmit}>

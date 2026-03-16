@@ -123,6 +123,14 @@
   margin-top: 50px;
 }
 
+#msg {
+  margin-bottom: 1em;
+  width: 35em;
+  height: 7em;
+  padding: 10px;
+  font-size: 16px;
+}
+
 #message {
   margin-bottom: 1em;
   width: 35em;
@@ -132,7 +140,7 @@
 }
 
 .chat-window {
-    border: 1px solid #ccc;
+    border: 1px solid #606470;
     padding: 15px;
     height: 300px;
     overflow-y: auto;

@@ -17,9 +17,7 @@ public class GetCaseQueryHandler
     public async Task<CaseDto?> Handle(
         GetCaseQuery request,
         CancellationToken cancellationToken)
-    {
-        Console.WriteLine(request);
-        
+    {        
         var caseEntity = await _context.PatientCases
             .Include(c => c.Messages)
             .FirstOrDefaultAsync(
