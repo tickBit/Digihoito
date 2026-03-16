@@ -161,24 +161,6 @@ app.MapGet("/cases/{id}", async (
     var result = await handler.Handle(
         new GetCaseQuery(id, userId, role),
         token);
-
-    if (result == null)
-    {
-        Console.WriteLine("null");
-    } else
-    {
-        if (result == null)
-{
-    Console.WriteLine("Result: NULL");
-}
-else
-{
-    Console.WriteLine($"CaseId: {result.Id}");
-    Console.WriteLine($"Locked: {result.IsLocked}");
-    Console.WriteLine($"Unread: {result.UnreadCount}");
-    Console.WriteLine($"Messages: {result.Messages.Count}");
-}
-    }
     
     return result is null
         ? Results.NotFound()
@@ -199,5 +181,29 @@ app.MapPost("/login", async (
     });
 
 #endregion
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    var passwordHasher = scope.ServiceProvider
+        .GetRequiredService<IAppPasswordHasher>();
+
+    if (!context.Users.Any(u => u.Role == UserRole.Admin))
+    {
+        var admin = new User(
+            Guid.NewGuid(),
+            "admin@digihoito.local",
+            passwordHasher.HashPassword("Admin123!"),
+            UserRole.Admin
+        );
+
+        context.Users.Add(admin);
+        context.SaveChanges();
+
+        Console.WriteLine("Admin user created.");
+    }
+}
 
 app.Run();
