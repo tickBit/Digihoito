@@ -12,7 +12,7 @@ const Register = () => {
     
     const { login } = useAuth();
        
-    const handleRegister = (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleRegister = async(e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         
         const formData = new FormData(e.currentTarget);
@@ -26,11 +26,12 @@ const Register = () => {
         }
  
         // Make API call to register the user
-        axios.post('http://localhost:5199/register', { email, password, role: 1 }, {
+        await axios.post('http://localhost:5199/register', { email, password, role: 1 }, {
                    headers: {
                     "Content-Type": "application/json",
             }})
             .then(response => {
+                
                 alert('Registration successful');
                 
                 login(email, response.data.token);
@@ -38,7 +39,13 @@ const Register = () => {
                 
             })
             .catch(error => {
-                alert('Registration failed: ' + error.message);
+                
+                const message =
+                error.response?.data?.error ||
+                error.message ||
+                "Unknown error";
+                
+                alert('Registration failed: ' + message);
             });
         
     }
