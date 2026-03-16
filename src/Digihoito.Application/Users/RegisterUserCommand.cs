@@ -1,3 +1,4 @@
+namespace Digihoito.Application.Users;
 using Digihoito.Domain.Users;
 
 public record RegisterUserCommand(

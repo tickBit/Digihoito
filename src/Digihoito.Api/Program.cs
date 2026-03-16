@@ -81,6 +81,8 @@ var app = builder.Build();
 
 app.UseCors("Frontend");
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

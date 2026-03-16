@@ -1,6 +1,5 @@
 namespace Digihoito.Application.Users;
 using Digihoito.Domain.Users;
-using Digihoito.Application.Interfaces;
 
 public class RegisterUserCommandHandler
 {
@@ -17,18 +16,23 @@ public class RegisterUserCommandHandler
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
     }
-
+    
     public async Task<TokenResponse> Handle(
         RegisterUserCommand command,
         CancellationToken cancellationToken)
     {
+        if (await _userRepository.EmailExistsAsync(command.Email, cancellationToken) == true)
+        {
+            throw new InvalidOperationException("Email already registered.");
+        }
+        
         var passwordHash = _passwordHasher.HashPassword(command.Password);
 
         var user = User.Create(
             command.Email,
             passwordHash,
             command.Role);
-
+    
         await _userRepository.AddAsync(user, cancellationToken);
 
         var token = _jwtTokenService.GenerateToken(
