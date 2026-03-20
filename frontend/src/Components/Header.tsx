@@ -1,10 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/useAuth';
-
-import './../App.css';
-import Dropdown from './Dropdown';
-
+import { useNavigate } from "react-router-dom";
+import Dropdown from "./Dropdown";
+import { useAuth } from "../auth/useAuth";
 
 const Header = () => {
   

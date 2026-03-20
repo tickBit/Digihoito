@@ -1,10 +1,10 @@
-namespace Digihoito.Infrastructure.Queries;
 using Digihoito.Application.Cases.Queries;
 using Digihoito.Infrastructure.Persistence;
 using Digihoito.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Digihoito.Application.Cases.DTO;
 
+namespace Digihoito.Infrastructure.Queries {
 public class GetCaseQueryHandler
 {
     private readonly ApplicationDbContext _context;
@@ -33,6 +33,7 @@ public class GetCaseQueryHandler
     request.Role == UserRole.Admin
         ? caseEntity.Messages.Count(m => !m.IsReadByAdmin)
         : caseEntity.Messages.Count(m => !m.IsReadByPatient),
+    caseEntity.Subject!,
     caseEntity.Messages
         .OrderBy(m => m.CreatedAt)
         .Select(m => new MessageDto(
@@ -47,4 +48,5 @@ public class GetCaseQueryHandler
         .ToList()
         );
     }
+}
 }

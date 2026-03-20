@@ -2,50 +2,44 @@ using System.Security.Claims;
 using System.Text;
 using Digihoito.Application.Cases;
 using Digihoito.Application.Cases.Queries;
+using Digihoito.Application.Users;
+using Digihoito.Domain.Cases;
 using Digihoito.Domain.Users;
 using Digihoito.Infrastructure.Persistence;
 using Digihoito.Infrastructure.Persistence.Repositories;
 using Digihoito.Infrastructure.Persistence.Security;
 using Digihoito.Infrastructure.Queries;
-using Digihoito.Application.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Digihoito.Domain.Cases;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#region Database
-
+// 1️⃣ Rekisteröidään DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-#endregion
+// 2️⃣ Rekisteröidään repositoryt
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICaseRepository, CaseRepository>();
+builder.Services.AddScoped<IAppPasswordHasher, PasswordHasher>();
 
-#region Handlers (DI)
-
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+// 3️⃣ Rekisteröidään handlers
 builder.Services.AddScoped<RegisterUserCommandHandler>();
+builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<CreateCaseCommandHandler>();
 builder.Services.AddScoped<AddMessageCommandHandler>();
 builder.Services.AddScoped<MarkMessagesAsReadCommandHandler>();
 builder.Services.AddScoped<GetCaseQueryHandler>();
 builder.Services.AddScoped<GetAllCasesQueryHandler>();
 builder.Services.AddScoped<LockCaseCommandHandler>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICaseRepository, CaseRepository>();
-builder.Services.AddScoped<IAppPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<LoginUserCommandHandler>();
-
-#endregion
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 #region Authentication
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -54,8 +48,7 @@ builder.Services
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
         };
     });
 
@@ -69,10 +62,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -97,116 +89,89 @@ app.MapPost("/register", async (
     RegisterUserCommand command,
     RegisterUserCommandHandler handler,
     CancellationToken token) =>
-    {
-        var result = await handler.Handle(command, token);
-
-        return Results.Ok(result);
-    });
-
-app.MapPost("/cases/{id}/messages", async (
-    Guid id,
-    string content,
-    AddMessageCommandHandler handler,
-    ClaimsPrincipal user,
-    CancellationToken token) =>
 {
-    var userId = Guid.Parse(
-        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-    var role = Enum.Parse<UserRole>(
-        user.FindFirst(ClaimTypes.Role)!.Value);
-
-    var command = new AddMessageCommand(
-        id,
-        userId,
-        role,
-        content);
-
-    await handler.Handle(command, token);
-
-    return Results.Ok();
-})
-.RequireAuthorization();
-
-app.MapGet("/cases", async (
-    GetAllCasesQueryHandler handler,
-    ClaimsPrincipal user,
-    CancellationToken token) =>
-{
-    var userId = Guid.Parse(
-        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-    var role = Enum.Parse<UserRole>(
-        user.FindFirst(ClaimTypes.Role)!.Value);
-
-    var result = await handler.Handle(
-        new GetAllCasesQuery(userId, role),
-        token);
-
+    var result = await handler.Handle(command, token);
     return Results.Ok(result);
-})
-.RequireAuthorization();
-           
+});
+
+app.MapPost("/login", async (
+    LoginUserCommand command,
+    LoginUserCommandHandler handler,
+    CancellationToken token) =>
+{
+    var result = await handler.Handle(command, token);
+    return result is null
+        ? Results.Unauthorized()
+        : Results.Ok(result);
+});
+
 app.MapPost("/cases", async (
     CreateCaseCommand command,
     CreateCaseCommandHandler handler,
     ClaimsPrincipal user,
     CancellationToken token) =>
 {
-    var userId = Guid.Parse(
-        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            
-    var id = await handler.Handle(
-        command with { PatientId = userId },
-        token);
-
+    var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var id = await handler.Handle(command with { PatientId = userId }, token);
     return Results.Ok(id);
-})
-.RequireAuthorization();
+}).RequireAuthorization();
+
+app.MapGet("/cases", async (
+    GetAllCasesQueryHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{
+    var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
+
+    var result = await handler.Handle(new GetAllCasesQuery(userId, role), token);
+    return Results.Ok(result);
+}).RequireAuthorization();
 
 app.MapGet("/cases/{id}", async (
     Guid id,
     GetCaseQueryHandler handler,
     ClaimsPrincipal user,
     CancellationToken token) =>
-{   
-    var userId = Guid.Parse(
-        user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-    
-    var role = Enum.Parse<UserRole>(
-        user.FindFirst(ClaimTypes.Role)!.Value);
-    
-    var result = await handler.Handle(
-        new GetCaseQuery(id, userId, role),
-        token);
-    
+{
+    var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
+
+    var result = await handler.Handle(new GetCaseQuery(id, userId, role), token);
     return result is null
         ? Results.NotFound()
         : Results.Ok(result);
-})
-.RequireAuthorization();
+}).RequireAuthorization();
 
-app.MapPost("/login", async (
-    LoginUserCommand command,
-    LoginUserCommandHandler handler,
+app.MapPost("/cases/{id}/messages", async (
+    Guid id,
+    ContinueWithMessageRequest content,
+    AddMessageCommandHandler handler,
+    ClaimsPrincipal user,
     CancellationToken token) =>
-    {
-        var result = await handler.Handle(command, token);
+{    
+    var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
 
-        return result is null
-            ? Results.Unauthorized()
-            : Results.Ok(result);
-    });
+    var command = new AddMessageCommand(
+        CaseId: id,
+        SenderId: userId,
+        Role: role,
+        Content: content.Content
+    );
+
+    await handler.Handle(command, token);
+    return Results.Ok();
+}).RequireAuthorization();
 
 #endregion
 
+#region Admin Initialization
+
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider
-        .GetRequiredService<ApplicationDbContext>();
-
-    var passwordHasher = scope.ServiceProvider
-        .GetRequiredService<IAppPasswordHasher>();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IAppPasswordHasher>();
 
     if (!context.Users.Any(u => u.Role == UserRole.Admin))
     {
@@ -223,5 +188,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("Admin user created.");
     }
 }
+
+#endregion
 
 app.Run();

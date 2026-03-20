@@ -52,7 +52,7 @@ Cases
 │     │  
 │     ├── AddMessage(...)  
 │     ├── Lock()  
-│     └── Messages (IReadOnlyCollection<Message>)  
+│     └── Messages (ICollection<Message>)  
 │  
 └── Message  (Entity)  
       ├── Id  

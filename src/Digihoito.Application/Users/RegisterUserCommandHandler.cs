@@ -1,5 +1,7 @@
-namespace Digihoito.Application.Users;
+
 using Digihoito.Domain.Users;
+
+namespace Digihoito.Application.Users {
 
 public class RegisterUserCommandHandler
 {
@@ -42,4 +44,5 @@ public class RegisterUserCommandHandler
 
         return new TokenResponse(token);
     }
+}
 }

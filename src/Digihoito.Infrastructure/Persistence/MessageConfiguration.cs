@@ -1,8 +1,8 @@
+namespace Digihoito.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Digihoito.Domain.Cases;
-
-namespace Digihoito.Infrastructure.Persistence.Configurations;
 
 public class MessageConfiguration : IEntityTypeConfiguration<Message>
 {

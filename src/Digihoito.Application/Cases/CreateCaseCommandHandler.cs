@@ -1,10 +1,10 @@
-namespace Digihoito.Application.Cases;
 
 using Digihoito.Domain.Cases;
 
+namespace Digihoito.Application.Cases;
 public class CreateCaseCommandHandler
 {
-    private readonly ICaseRepository _repository;
+    private ICaseRepository _repository;
 
     public CreateCaseCommandHandler(ICaseRepository repository)
     {
@@ -15,6 +15,7 @@ public class CreateCaseCommandHandler
     {
         var patientCase = PatientCase.Create(
             command.PatientId,
+            command.Subject,
             command.InitialMessage);
 
         

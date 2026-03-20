@@ -1,8 +1,8 @@
+namespace Digihoito.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Digihoito.Domain.Users;
-
-namespace Digihoito.Infrastructure.Persistence.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {

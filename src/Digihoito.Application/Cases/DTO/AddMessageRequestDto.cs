@@ -1,0 +1,1 @@
+public record AddMessageRequestDto(string Content);

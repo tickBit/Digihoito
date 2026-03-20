@@ -1,21 +1,25 @@
+
 using Digihoito.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Digihoito.Application.Interfaces;
 using Digihoito.Domain.Users;
 
-
+namespace Digihoito.Infrastructure.Persistence.Repositories
+{
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
 
     public UserRepository(ApplicationDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public async Task AddAsync(User user, CancellationToken cancellationToken)
     {
         await _context.Users.AddAsync(user, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
+        
     }
 
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
@@ -27,4 +31,5 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
     }
+}
 }

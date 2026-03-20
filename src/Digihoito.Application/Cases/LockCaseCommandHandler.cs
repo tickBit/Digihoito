@@ -1,6 +1,8 @@
+namespace Digihoito.Application.Cases;
+
 public class LockCaseCommandHandler
 {
-    private readonly ICaseRepository _repository;
+    private  ICaseRepository _repository;
 
     public LockCaseCommandHandler(ICaseRepository repository)
     {

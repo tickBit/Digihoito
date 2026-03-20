@@ -1,8 +1,9 @@
+namespace Digihoito.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Digihoito.Domain.Cases;
 
-namespace Digihoito.Infrastructure.Persistence.Configurations;
 
 public class PatientCaseConfiguration : IEntityTypeConfiguration<PatientCase>
 {
@@ -18,7 +19,7 @@ public class PatientCaseConfiguration : IEntityTypeConfiguration<PatientCase>
     builder.Property(x => x.RowVersion)
         .IsRowVersion()
         .IsConcurrencyToken();
-
+        
     builder.HasMany(x => x.Messages)
         .WithOne()
         .HasForeignKey("PatientCaseId")

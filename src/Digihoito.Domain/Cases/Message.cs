@@ -6,11 +6,7 @@ public sealed class Message
 {
     private Message() { } // EF
 
-    internal Message(
-        Guid patientCaseId,
-        Guid senderId,
-        UserRole senderRole,
-        string content)
+    internal Message(Guid patientCaseId, Guid senderId, UserRole senderRole, string content)
     {
         Id = Guid.NewGuid();
         PatientCaseId = patientCaseId;
@@ -21,31 +17,17 @@ public sealed class Message
     }
 
     public Guid Id { get; private set; }
-
     public Guid PatientCaseId { get; private set; }
-
     public Guid SenderId { get; private set; }
-
     public UserRole SenderRole { get; private set; }
-
     public string Content { get; private set; } = default!;
-
     public DateTime CreatedAt { get; private set; }
-
     public bool IsReadByAdmin { get; private set; }
-
     public bool IsReadByPatient { get; private set; }
 
     public void MarkAsRead(UserRole role)
     {
-        if (role == UserRole.User)
-        {
-            IsReadByPatient = true;
-        }
-    
-        if (role == UserRole.Admin)
-        {
-            IsReadByAdmin = true;
-        }
+        if (role == UserRole.User) IsReadByPatient = true;
+        if (role == UserRole.Admin) IsReadByAdmin = true;
     }
 }

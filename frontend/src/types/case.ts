@@ -4,6 +4,7 @@ export interface MessageDto {
   content: string
   createdAt: string
   isRead: boolean
+  senderId: string
 }
 
 export interface CaseDto {

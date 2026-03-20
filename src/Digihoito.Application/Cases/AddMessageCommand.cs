@@ -1,6 +1,9 @@
+namespace Digihoito.Application.Cases;
+
 using Digihoito.Domain.Users;
 public record AddMessageCommand(
     Guid CaseId,
     Guid SenderId,
-    UserRole Role,
-    string Content);
+    string Content,
+    UserRole Role
+    );
