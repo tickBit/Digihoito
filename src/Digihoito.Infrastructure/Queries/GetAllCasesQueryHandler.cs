@@ -19,10 +19,6 @@ public class GetAllCasesQueryHandler
     CancellationToken cancellationToken)
 {
     var query = _context.PatientCases.Include(c => c.Messages).AsQueryable();
-
-    var allIds = await _context.PatientCases.Select(c => c.Id).ToListAsync();
-    Console.WriteLine("testi");
-    Console.WriteLine(string.Join(", ", allIds));
         
     if (request.Role == UserRole.User)
     {

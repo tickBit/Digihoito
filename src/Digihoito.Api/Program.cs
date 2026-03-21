@@ -145,7 +145,7 @@ app.MapGet("/cases/{id}", async (
 
 app.MapPost("/cases/{id}/messages", async (
     Guid id,
-    ContinueWithMessageRequest content,
+    AddMessageRequestDto content,
     AddMessageCommandHandler handler,
     ClaimsPrincipal user,
     CancellationToken token) =>

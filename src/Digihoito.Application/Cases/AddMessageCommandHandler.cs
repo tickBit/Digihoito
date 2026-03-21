@@ -11,9 +11,7 @@ public class AddMessageCommandHandler
     }
 
     public async Task Handle(AddMessageCommand command, CancellationToken cancellationToken)
-    {
-        Console.WriteLine(command.CaseId);
-        
+    {        
         var patientCase = await _repository.GetByIdAsync(
             command.CaseId,
             cancellationToken);
@@ -26,6 +24,7 @@ public class AddMessageCommandHandler
             command.Content,
             command.Role);
     
+        // tämä voisi olla paremmin tehty
         var message = patientCase.Messages.Last();
         
         await _repository.AddMessageAsync(message, cancellationToken);
