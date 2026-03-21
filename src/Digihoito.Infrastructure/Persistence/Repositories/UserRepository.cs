@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync(cancellationToken);
         
     }
-
+    
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
     {
         return _context.Users.AnyAsync(x => x.Email == email, cancellationToken);

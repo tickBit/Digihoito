@@ -10,8 +10,8 @@ import Header from './Header';
 const MainPage = () => {
   
   type CaseObject = {
-    id: string,
-    createdAt:Date
+    id: string
+    createdAt: Date
     isLocked: boolean
     subject: string
     unreadCount: number
@@ -164,9 +164,14 @@ const MainPage = () => {
     </div>
     
     <div className="case-div">
-      {cases && cases.map(c => (
+      {cases !== null && cases.map((c) => (
+        c.unreadCount > 0 ?
+        <h3 key={c.id} className="case-item" onClick={() => { setCaseId(c.id); fetchCaseMessages(c.id); }} >{c.subject} ({c.unreadCount})</h3>
+        :        
         <h3 key={c.id} className="case-item" onClick={() => { setCaseId(c.id); fetchCaseMessages(c.id); }} >{c.subject}</h3>
-      ))}
+        )
+      )}
+      
     </div>
     
     <div style={{ maxWidth: "700px", margin: "auto" }}>

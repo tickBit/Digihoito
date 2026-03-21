@@ -27,6 +27,15 @@ public class GetCaseQueryHandler
         if (caseEntity == null)
             return null;
 
+        var messages = caseEntity.Messages.Select(m => new MessageDto(
+                                                            m.Id,
+                                                            m.SenderId,
+                                                            m.SenderRole,
+                                                            m.Content,
+                                                            m.CreatedAt,
+                                                            m.IsReadByAdmin,
+                                                            m.IsReadByPatient));
+                
         return new CaseDto(
     caseEntity.Id,
     caseEntity.IsLocked,

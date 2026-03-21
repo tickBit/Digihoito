@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using Digihoito.Application.Cases;
@@ -131,6 +132,7 @@ app.MapGet("/cases", async (
 app.MapGet("/cases/{id}", async (
     Guid id,
     GetCaseQueryHandler handler,
+    MarkMessagesAsReadCommandHandler commandHandler,
     ClaimsPrincipal user,
     CancellationToken token) =>
 {
@@ -138,10 +140,17 @@ app.MapGet("/cases/{id}", async (
     var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
 
     var result = await handler.Handle(new GetCaseQuery(id, userId, role), token);
+    
+    if (result != null)
+    {
+        await commandHandler.Handle(new MarkMessagesAsReadCommand(id, role), token);
+    }
+    
     return result is null
         ? Results.NotFound()
         : Results.Ok(result);
 }).RequireAuthorization();
+
 
 app.MapPost("/cases/{id}/messages", async (
     Guid id,
