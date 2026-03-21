@@ -14,6 +14,10 @@ public sealed class Message
         SenderRole = senderRole;
         Content = content;
         CreatedAt = DateTime.UtcNow;
+        
+        // here !
+        IsReadByAdmin = senderRole == UserRole.Admin ? true : false;
+        IsReadByPatient = senderRole == UserRole.User ? true : false;
     }
 
     public Guid Id { get; private set; }

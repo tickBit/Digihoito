@@ -1,5 +1,6 @@
 namespace Digihoito.Domain.Cases;
 
+using System.Runtime.InteropServices;
 using Digihoito.Domain.Users;
 
 public sealed class PatientCase
@@ -41,6 +42,9 @@ public sealed class PatientCase
             throw new InvalidOperationException("Not case owner");
 
         var message = new Message(Id, senderId, role, content);
+        
+        message.MarkAsRead(role);
+        
         _messages.Add(message);
         
     }

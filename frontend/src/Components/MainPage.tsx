@@ -39,6 +39,8 @@ const MainPage = () => {
                             const data = response.data;
                             setCases(data);
                             
+                            console.log(response)
+                            
                           }).catch(error => {
                             console.log(error);
                           });
@@ -134,6 +136,7 @@ const MainPage = () => {
         
         const data = response.data;
         setCases(data);
+        console.log(response)
         
       }).catch(error => {
         console.log(error);
