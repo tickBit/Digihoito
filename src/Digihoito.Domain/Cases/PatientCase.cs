@@ -23,6 +23,8 @@ public sealed class PatientCase
 
     public Guid Id { get; private set; }
     public Guid PatientId { get; private set; }
+    public Guid? AdminId { get; private set; }
+    public User? Admin { get; private set; } = null;
     public DateTime CreatedAt { get; private set; }
     public DateTime? LockedAt { get; private set; }
     public Guid? ClosedByAdminId { get; private set; }
@@ -42,11 +44,9 @@ public sealed class PatientCase
             throw new InvalidOperationException("Not case owner");
 
         var message = new Message(Id, senderId, role, content);
-        
+
         message.MarkAsRead(role);
-        
         _messages.Add(message);
-        
     }
 
     public void Lock(Guid adminId)
@@ -57,4 +57,23 @@ public sealed class PatientCase
         LockedAt = DateTime.UtcNow;
         ClosedByAdminId = adminId;
     }
+    
+    public void AssignAdmin(Guid adminId)
+    {
+        AdminId = adminId;
+    }
+    
+    public Guid GetOtherParticipant(Guid senderId)
+    {
+        
+        if (senderId == PatientId)
+            return (Guid)AdminId!;
+       
+
+        if (senderId == AdminId)
+            return PatientId;
+
+        throw new InvalidOperationException("Sender is not part of this case");
+    }
+
 }

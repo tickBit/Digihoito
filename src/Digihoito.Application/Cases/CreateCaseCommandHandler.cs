@@ -18,7 +18,6 @@ public class CreateCaseCommandHandler
             command.Subject,
             command.InitialMessage);
 
-        
         await _repository.AddAsync(patientCase, cancellationToken);
 
         return patientCase.Id;

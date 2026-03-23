@@ -63,6 +63,12 @@ namespace Digihoito.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AdminId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AdminId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ClosedByAdminId")
                         .HasColumnType("uniqueidentifier");
 
@@ -85,6 +91,12 @@ namespace Digihoito.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("AdminId1");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("PatientCases", (string)null);
                 });
@@ -128,6 +140,26 @@ namespace Digihoito.Infrastructure.Migrations
                         .HasForeignKey("PatientCaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Digihoito.Domain.Cases.PatientCase", b =>
+                {
+                    b.HasOne("Digihoito.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Digihoito.Domain.Users.User", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminId1");
+
+                    b.HasOne("Digihoito.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("Digihoito.Domain.Cases.PatientCase", b =>

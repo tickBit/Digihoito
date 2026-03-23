@@ -1,10 +1,8 @@
-using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using Digihoito.Application.Cases;
 using Digihoito.Application.Cases.Queries;
 using Digihoito.Application.Users;
-using Digihoito.Domain.Cases;
 using Digihoito.Domain.Users;
 using Digihoito.Infrastructure.Persistence;
 using Digihoito.Infrastructure.Persistence.Repositories;
@@ -13,6 +11,8 @@ using Digihoito.Infrastructure.Queries;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.SignalR;
+using Digihoito.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +25,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICaseRepository, CaseRepository>();
 builder.Services.AddScoped<IAppPasswordHasher, PasswordHasher>();
 
-// 3️⃣ Rekisteröidään handlers
+// 3️⃣ Rekisteröidään handlers'
+builder.Services.AddSignalR();
+
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<CreateCaseCommandHandler>();
@@ -35,6 +37,7 @@ builder.Services.AddScoped<GetCaseQueryHandler>();
 builder.Services.AddScoped<GetAllCasesQueryHandler>();
 builder.Services.AddScoped<LockCaseCommandHandler>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<INotifyNewMessages, SignalRNotifier>();
 
 #region Authentication
 
@@ -63,9 +66,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -85,6 +90,8 @@ app.UseAuthorization();
 #endregion
 
 #region Endpoints
+
+app.MapHub<CasesHub>("/hubs/cases");
 
 app.MapPost("/register", async (
     RegisterUserCommand command,
@@ -126,7 +133,9 @@ app.MapGet("/cases", async (
     var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
 
     var result = await handler.Handle(new GetAllCasesQuery(userId, role), token);
+    
     return Results.Ok(result);
+    
 }).RequireAuthorization();
 
 app.MapGet("/cases/{id}", async (
@@ -194,7 +203,6 @@ using (var scope = app.Services.CreateScope())
         context.Users.Add(admin);
         context.SaveChanges();
 
-        Console.WriteLine("Admin user created.");
     }
 }
 

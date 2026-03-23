@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import * as signalR from "@microsoft/signalr";
+
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
 import MessageBubble from "../Components/MessageBubble";
@@ -16,17 +18,18 @@ const MainPage = () => {
     subject: string
     unreadCount: number
   }
-  
-  const { token, userId, userEmail } = useAuth();
+
   const navigate = useNavigate();
 
+  const { token, userId, userEmail } = useAuth();
+  const connectionRef = useRef<signalR.HubConnection | null>(null);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDto[] | null>(null);
   const [cases, setCases] = useState<CaseObject[] | null>(null);
-                        
+                       
   const bottomRef = useRef<HTMLDivElement>(null);
   
-  const getCases = async(token:string) => {
+  const getCases2 = async(token:string) => {
         await axios.get(
                             "http://localhost:5199/cases",
                             {
@@ -37,15 +40,16 @@ const MainPage = () => {
                           ).then(response => {
                             
                             const data = response.data;
+  
                             setCases(data);
                             
-                            console.log(response)
                             
                           }).catch(error => {
                             console.log(error);
                           });
     
-  }
+      }
+  
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 
         e.preventDefault();
@@ -63,11 +67,7 @@ const MainPage = () => {
 
                         const caseId = response.data;
                         
-                        setCaseId(caseId);
-                        console.log(caseId);
-                        
-                        getCases(token!)
-                        
+                        setCaseId(caseId);                        
                         
                     }).catch(error => { 
                         console.log(error);
@@ -80,9 +80,9 @@ const MainPage = () => {
     await axios.get(`http://localhost:5199/cases/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => {
-        console.log(res)
+        console.log("ho",res);
         setMessages(res.data.messages);
-      
+        
     }).catch(error => {
       console.log(error);
     })
@@ -115,46 +115,85 @@ const MainPage = () => {
 
   
   useEffect(() => {
+    
+    const getCases = async(token:string) => {
+        await axios.get(
+                            "http://localhost:5199/cases",
+                            {
+                              headers: {
+                                Authorization: `Bearer ${token}`
+                              }
+                            }
+                          ).then(response => {
+                            
+                            const data = response.data;
+                            console.log(data)
+                            setCases(data)
+                                                        
+                          }).catch(error => {
+                            console.log(error);
+                          });
+    
+      }
+    
+    const initChat = async () => {
 
-  const initChat = async () => {
-
-    if (!token) {
-      alert('You must be logged in to view this page');
-      navigate('/');
-      return;
-    }
-
-    if (token !== null) {
-      await axios.get(
-        "http://localhost:5199/cases",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      ).then(response => {
+      if (!token) {
+        alert('You must be logged in to view this page');
+        navigate('/');
+        return;
+      }
         
-        const data = response.data;
-        setCases(data);
-        console.log(response)
-        
-      }).catch(error => {
-        console.log(error);
-      });
-    }
-  };
-
+        getCases(token!)
+      };
+  
   initChat();
+    
+  return () => {
+    
+  }
+  
+}, [token, navigate, caseId]);
 
-}, [token, navigate]);
+  useEffect(() => {
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("http://localhost:5199/hubs/cases", {
+      withCredentials: true
+    })
+    .withAutomaticReconnect()
+    .build();
 
+  connection.on("ReceiveMessages", (messages) => {
+    console.log(messages);
+    setMessages(messages)
+    console.log("testi");
+  });
+
+  connection.start()
+    .then(() => {
+      console.log("Connected");
+    })
+    .catch(err => {
+      console.error("SignalR start error:", err);
+    });
+
+  connectionRef.current = connection;
+
+  return () => {
+    connection.stop();
+  };
+}, [token]);
+  
+  useEffect(() => {
+  if (connectionRef.current && caseId) {
+    connectionRef.current.invoke("JoinCase", caseId);
+  }
+}, [caseId]);
+  
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    
-  })
   return (
     <>
     <Header />
@@ -164,7 +203,7 @@ const MainPage = () => {
     </div>
     
     <div className="case-div">
-      {cases !== null && cases.map((c) => (
+      {cases && cases.map((c) => (
         c.unreadCount > 0 ?
         <h3 key={c.id} className="case-item" onClick={() => { setCaseId(c.id); fetchCaseMessages(c.id); }} >{c.subject} ({c.unreadCount})</h3>
         :        

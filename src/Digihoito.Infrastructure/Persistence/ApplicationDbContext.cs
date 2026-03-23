@@ -15,6 +15,21 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<PatientCase>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

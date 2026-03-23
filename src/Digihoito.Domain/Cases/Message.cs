@@ -34,4 +34,5 @@ public sealed class Message
         if (role == UserRole.User) IsReadByPatient = true;
         if (role == UserRole.Admin) IsReadByAdmin = true;
     }
+    
 }

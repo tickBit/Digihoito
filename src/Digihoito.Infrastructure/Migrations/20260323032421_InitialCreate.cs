@@ -12,23 +12,6 @@ namespace Digihoito.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "PatientCases",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LockedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ClosedByAdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PatientCases", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -42,6 +25,42 @@ namespace Digihoito.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PatientCases",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AdminId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LockedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClosedByAdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PatientCases", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PatientCases_Users_AdminId",
+                        column: x => x.AdminId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PatientCases_Users_AdminId1",
+                        column: x => x.AdminId1,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PatientCases_Users_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,6 +93,21 @@ namespace Digihoito.Infrastructure.Migrations
                 column: "PatientCaseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PatientCases_AdminId",
+                table: "PatientCases",
+                column: "AdminId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PatientCases_AdminId1",
+                table: "PatientCases",
+                column: "AdminId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PatientCases_PatientId",
+                table: "PatientCases",
+                column: "PatientId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
@@ -87,10 +121,10 @@ namespace Digihoito.Infrastructure.Migrations
                 name: "Messages");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "PatientCases");
 
             migrationBuilder.DropTable(
-                name: "PatientCases");
+                name: "Users");
         }
     }
 }

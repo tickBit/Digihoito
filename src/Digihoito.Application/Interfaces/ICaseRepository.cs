@@ -7,5 +7,4 @@ public interface ICaseRepository
     
     Task AddMessageAsync(Message message, CancellationToken cancellationToken);
     Task SaveChangesAsync(CancellationToken cancellationToken);
-
 }

@@ -12,7 +12,7 @@ public class PatientCaseConfiguration : IEntityTypeConfiguration<PatientCase>
     builder.ToTable("PatientCases");
 
     builder.HasKey(x => x.Id);
-
+    
     builder.Property(x => x.CreatedAt)
         .IsRequired();
 

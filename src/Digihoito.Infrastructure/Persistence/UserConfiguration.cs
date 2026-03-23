@@ -25,5 +25,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Role)
             .IsRequired()
             .HasConversion<int>();
+            
     }
 }
