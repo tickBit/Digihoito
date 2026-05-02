@@ -1,4 +1,3 @@
-import './App.css';
 import { useAuth } from './auth/useAuth';
 
 import Header from "./Components/Header";
