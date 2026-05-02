@@ -8,6 +8,8 @@ interface Props {
 export default function MessageBubble({ message, currentUserId }: Props) {
   const isOwn = message.senderId === currentUserId;
 
+  console.log(message.senderRole);
+  
   return (
     <div
       style={{
@@ -18,7 +20,7 @@ export default function MessageBubble({ message, currentUserId }: Props) {
     >
       <div
         style={{
-          background: isOwn ? "#cce5ff" : "#eee",
+          background: parseInt(message.senderRole) === 1 ? "#77ccee" : "#ee6655",
           padding: "10px",
           borderRadius: "10px",
           maxWidth: "60%"
