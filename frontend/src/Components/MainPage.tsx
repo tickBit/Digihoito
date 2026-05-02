@@ -21,7 +21,7 @@ const MainPage = () => {
 
   const navigate = useNavigate();
 
-  const { token, userId, userEmail } = useAuth();
+  const { token, userEmail, userRole } = useAuth();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDto[] | null>(null);
@@ -80,7 +80,6 @@ const MainPage = () => {
     await axios.get(`http://localhost:5199/cases/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => {
-        console.log("ho",res);
         setMessages(res.data.messages);
         
     }).catch(error => {
@@ -166,7 +165,6 @@ const MainPage = () => {
   connection.on("ReceiveMessages", (messages) => {
     console.log(messages);
     setMessages(messages)
-    console.log("testi");
   });
 
   connection.start()
@@ -228,7 +226,7 @@ const MainPage = () => {
           <MessageBubble
             key={m.id}
             message={m}
-            currentUserId={userId}
+            currentUserId={m.senderId}
           />
         ))}
 
@@ -238,6 +236,7 @@ const MainPage = () => {
       <MessageInput onSend={sendMessage} />
     </div>
     
+    {userRole == 1 ? ( <>
     <form className="contact-form" onSubmit={handleSubmit}>
                 <h2>Voit ottaa yhteyttä asiantuntijaamme</h2>
                 <label htmlFor="message">Viesti:</label>
@@ -245,8 +244,8 @@ const MainPage = () => {
                 <textarea id="message" name="message" required></textarea>
                 <button type="submit">Lähetä</button>
     </form>
+    </>) : null}
     </>
-        
   );
 };
 
