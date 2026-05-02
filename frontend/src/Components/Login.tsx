@@ -1,9 +1,7 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
-import './../App.css';
 import Header from './Header';
-
 interface LoginProps {
     role: number;
 }
@@ -26,7 +24,7 @@ const Login = (props:LoginProps) => {
             }})
             .then(response => {
                 alert('Login successful');
-                login(email, response.data.token);
+                login(email, response.data.token, props.role);
                 navigate('/main');
             })
             .catch(error => {
