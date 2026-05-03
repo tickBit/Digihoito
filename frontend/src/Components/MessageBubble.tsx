@@ -7,8 +7,6 @@ interface Props {
 
 export default function MessageBubble({ message, currentUserId }: Props) {
   const isOwn = message.senderId === currentUserId;
-
-  console.log(message.senderRole);
   
   return (
     <div

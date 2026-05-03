@@ -1,9 +1,12 @@
 export interface MessageDto {
   id: string
+  caseId: string
   senderRole: string
   content: string
   createdAt: string
-  isRead: boolean
+  isRead?: boolean
+  isReadByAdmin?: boolean
+  isReadByPatient?: boolean
   senderId: string
 }
 

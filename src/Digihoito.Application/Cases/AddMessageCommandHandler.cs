@@ -38,6 +38,7 @@ public class AddMessageCommandHandler
             var messages = patientCase.Messages
             .Select(m => new MessageDto(
                 m.Id,
+                command.CaseId,
                 m.SenderId,
                 m.SenderRole,
                 m.Content,

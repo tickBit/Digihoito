@@ -29,6 +29,7 @@ public class GetCaseQueryHandler
 
         var messages = caseEntity.Messages.Select(m => new MessageDto(
                                                             m.Id,
+                                                            request.CaseId,
                                                             m.SenderId,
                                                             m.SenderRole,
                                                             m.Content,
@@ -47,6 +48,7 @@ public class GetCaseQueryHandler
         .OrderBy(m => m.CreatedAt)
         .Select(m => new MessageDto(
             m.Id,
+            request.CaseId,
             m.SenderId,
             m.SenderRole,
             m.Content,

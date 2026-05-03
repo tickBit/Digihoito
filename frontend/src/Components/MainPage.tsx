@@ -8,6 +8,7 @@ import MessageBubble from "../Components/MessageBubble";
 import MessageInput from "../Components/MessageInput";
 import { MessageDto } from "../types/case";
 import Header from './Header';
+import { markAsRead } from "../api/cases";
 
 const MainPage = () => {
   
@@ -23,13 +24,59 @@ const MainPage = () => {
 
   const { token, userEmail, userRole } = useAuth();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
+  const currentCaseIdRef = useRef<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
+  const casesRef = useRef<CaseObject[]>([]);
+  const joinedCaseIdsRef = useRef<Set<string>>(new Set());
   const [caseId, setCaseId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDto[] | null>(null);
   const [cases, setCases] = useState<CaseObject[] | null>(null);
                        
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    currentCaseIdRef.current = caseId;
+  }, [caseId]);
+
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
+
+  useEffect(() => {
+    casesRef.current = cases ?? [];
+  }, [cases]);
+
+  const joinKnownCaseGroups = async () => {
+    const connection = connectionRef.current;
+
+    if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
+      return;
+    }
+
+    const knownCaseIds = new Set(casesRef.current.map(c => c.id));
+
+    for (const id of knownCaseIds) {
+      if (!joinedCaseIdsRef.current.has(id)) {
+        await connection.invoke("JoinCase", id);
+        joinedCaseIdsRef.current.add(id);
+      }
+    }
+
+    for (const id of joinedCaseIdsRef.current) {
+      if (!knownCaseIds.has(id)) {
+        await connection.invoke("LeaveCase", id);
+        joinedCaseIdsRef.current.delete(id);
+      }
+    }
+  };
+
+  const updateCases = (data: CaseObject[]) => {
+    casesRef.current = data;
+    setCases(data);
+    void joinKnownCaseGroups();
+  };
   
-  const getCases2 = async(token:string) => {
+  const getCases2 = async(token: string) => {
         await axios.get(
                             "http://localhost:5199/cases",
                             {
@@ -41,7 +88,7 @@ const MainPage = () => {
                             
                             const data = response.data;
   
-                            setCases(data);
+                            updateCases(data);
                             
                             
                           }).catch(error => {
@@ -87,10 +134,22 @@ const MainPage = () => {
     })
     
   };
+
+  const openCase = async (id: string) => {
+    setCaseId(id);
+
+    if (token) {
+      await markAsRead(id, token);
+      updateCases((casesRef.current ?? []).map(c =>
+        c.id === id ? { ...c, unreadCount: 0 } : c
+      ));
+    }
+
+    await fetchCaseMessages(id);
+  };
   
   const sendMessage = async (text: string) => {
-
-    console.log(text, caseId);
+    
     if (!caseId) return;
 
     await axios.post(
@@ -102,10 +161,19 @@ const MainPage = () => {
             "Content-Type": "application/json"
         }
         }
-    ).then(resp => {
+    ).then(async resp => {
       console.log(resp);
       
       fetchCaseMessages(caseId);
+      
+      if (token) {
+        await markAsRead(caseId, token);
+      }
+      
+      if (token) {
+        await getCases2(token);
+      }
+      
     }).catch(error => {
       console.log(error);
     })
@@ -115,7 +183,7 @@ const MainPage = () => {
   
   useEffect(() => {
     
-    const getCases = async(token:string) => {
+    const getCases = async(token: string) => {
         await axios.get(
                             "http://localhost:5199/cases",
                             {
@@ -127,8 +195,8 @@ const MainPage = () => {
                             
                             const data = response.data;
                             console.log(data)
-                            setCases(data)
-                                                        
+                            updateCases(data)
+                                           
                           }).catch(error => {
                             console.log(error);
                           });
@@ -152,7 +220,7 @@ const MainPage = () => {
     
   }
   
-}, [token, navigate, caseId]);
+}, [token, navigate]);
 
   useEffect(() => {
   const connection = new signalR.HubConnectionBuilder()
@@ -162,14 +230,36 @@ const MainPage = () => {
     .withAutomaticReconnect()
     .build();
 
-  connection.on("ReceiveMessages", (messages) => {
-    console.log(messages);
-    setMessages(messages)
+  connection.on("ReceiveMessages", async (messages: MessageDto[]) => {
+    console.log("ReceiveMessages", messages);
+
+    const updatedCaseId = messages[0]?.caseId;
+    const openCaseId = currentCaseIdRef.current;
+    const currentToken = tokenRef.current;
+
+    if (!updatedCaseId || updatedCaseId !== openCaseId || !currentToken) {
+      if (currentToken) {
+        await getCases2(currentToken);
+      }
+
+      return;
+    }
+
+    setMessages(messages);
+    await markAsRead(updatedCaseId, currentToken);
+    await getCases2(currentToken);
+    
+  });
+
+  connection.onreconnected(async () => {
+    joinedCaseIdsRef.current.clear();
+    await joinKnownCaseGroups();
   });
 
   connection.start()
-    .then(() => {
+    .then(async () => {
       console.log("Connected");
+      await joinKnownCaseGroups();
     })
     .catch(err => {
       console.error("SignalR start error:", err);
@@ -178,15 +268,14 @@ const MainPage = () => {
   connectionRef.current = connection;
 
   return () => {
+    joinedCaseIdsRef.current.clear();
     connection.stop();
   };
 }, [token]);
   
   useEffect(() => {
-  if (connectionRef.current && caseId) {
-    connectionRef.current.invoke("JoinCase", caseId);
-  }
-}, [caseId]);
+    joinKnownCaseGroups();
+  }, [cases]);
   
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -203,9 +292,9 @@ const MainPage = () => {
     <div className="case-div">
       {cases && cases.map((c) => (
         c.unreadCount > 0 ?
-        <h3 key={c.id} className="case-item" onClick={() => { setCaseId(c.id); fetchCaseMessages(c.id); }} >{c.subject} ({c.unreadCount})</h3>
+        <h3 key={c.id} className="case-item" onClick={() => { void openCase(c.id); }} >{c.subject} ({c.unreadCount})</h3>
         :        
-        <h3 key={c.id} className="case-item" onClick={() => { setCaseId(c.id); fetchCaseMessages(c.id); }} >{c.subject}</h3>
+        <h3 key={c.id} className="case-item" onClick={() => { void openCase(c.id); }} >{c.subject}</h3>
         )
       )}
       

@@ -15,7 +15,7 @@ public class SignalRNotifier : INotifyNewMessages
     { 
         await _hubContext.Clients
             .Group(caseId.ToString())
-            .SendAsync("ReceiveMessages", messages);
+            .SendAsync("ReceiveMessages", messages );
             
     }
    
