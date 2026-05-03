@@ -182,6 +182,26 @@ app.MapPost("/cases/{id}/messages", async (
     return Results.Ok();
 }).RequireAuthorization();
 
+app.MapPost("/cases/{id}/read", async (
+    Guid id,
+    MarkMessagesAsReadCommandHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{    
+    var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
+
+    var command = new MarkMessagesAsReadCommand(
+        CaseId: id,
+        Role: role
+    );
+
+    await handler.Handle(command, token);
+
+    return Results.Ok();
+    
+}).RequireAuthorization();
+
 #endregion
 
 #region Admin Initialization
