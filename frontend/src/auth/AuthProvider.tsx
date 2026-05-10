@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { AuthContext } from './AuthContext';
 import { getTokenRemainingTime } from './auth.utils';
 import type { AuthContextType } from './auth.types.ts';
+import { useNavigate } from 'react-router-dom';
 
 const STORAGE_KEYS = {
   token: 'auth_token',
@@ -12,6 +13,7 @@ const STORAGE_KEYS = {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    
   const [token, setToken] = useState<string | null>(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.token);
     if (!stored) return null;
@@ -66,6 +68,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(STORAGE_KEYS.token);
     localStorage.removeItem(STORAGE_KEYS.email);
     localStorage.removeItem(STORAGE_KEYS.userRole);
+    
+    // navigate to root
+    navigation.navigate("/")
   };
 
   const value: AuthContextType = {
