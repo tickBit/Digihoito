@@ -36,12 +36,12 @@ const Login = (props:LoginProps) => {
         <>
         <Header />
         <div className='register-login'>
-            <h1>Login</h1>
-            {props.role === 1 ? <h3>(Patient)</h3> : <h3>(Personel)</h3>}
+            <h1>Kirjautuminen</h1>
+            {props.role === 1 ? <h3>(Potilaat)</h3> : <h3>(Henkilökunta)</h3>}
             <form onSubmit={handleLogin}>
                 <input className="form-field" type="text" name="email" placeholder="Email" required />
                 <input className="form-field" type="password" name="password" placeholder="Password" required />
-                <button type="submit">Login</button>
+                <button type="submit">Kirjaudu</button>
             </form>
         </div>
         </>

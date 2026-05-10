@@ -53,12 +53,12 @@ const Register = () => {
         <>
         <Header />
         <div className="register-login">
-            <h1>Register</h1>
+            <h1>Rekisteröinti</h1>
             <form onSubmit={handleRegister}>
                 <input className="form-field" type="text" name="email" placeholder="Email" required />
                 <input className="form-field" type="password" name="password" placeholder="Password" required />
                 <input className="form-field" type="password" name="confirmPassword" placeholder="Confirm Password" required />
-                <button type="submit">Register</button>
+                <button type="submit">Rekisteröidy</button>
             </form>
         </div>
         </>

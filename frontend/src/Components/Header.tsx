@@ -18,16 +18,16 @@ const Header = () => {
               label="Henkilökunta"
               href="#/personel"
               items={[
-                { label: 'Login', href: '/login_personel' }
+                { label: 'Kirjaudu', href: '/login_personel' }
               ]}
             />
             
             <Dropdown
-              {...token !== null ? { label: 'Potilaat', href: '#/Potilaat', items: [
-                { label: 'Logout', href: '#/logout', onClick: () => logout() }
+              {...token !== null ? { label: 'Potilaat', href: '/main', items: [
+                { label: 'Kirjaudu ulos', href: '/logout', onClick: () => logout() }
               ] } : { label: 'Potilaat', href: '#/Potilaat', items: [
-                { label: 'Login', href: '/login_patient' },
-                { label: 'Register', href: '/register' }
+                { label: 'Kirjaudu', href: '/login_patient' },
+                { label: 'Rekisteröidy', href: '/register' }
               ] }}
             />
         </div>
