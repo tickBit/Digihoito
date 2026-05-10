@@ -221,7 +221,7 @@ const MainPage = () => {
     
   }
   
-}, [token, navigate, updateCases]);
+}, [token, navigate, updateCases, cases]);
 
   useEffect(() => {
   const connection = new signalR.HubConnectionBuilder()

@@ -4,7 +4,6 @@ import { useState, useEffect, ReactNode } from 'react';
 import { AuthContext } from './AuthContext';
 import { getTokenRemainingTime } from './auth.utils';
 import type { AuthContextType } from './auth.types.ts';
-import { useNavigate } from 'react-router-dom';
 
 const STORAGE_KEYS = {
   token: 'auth_token',
