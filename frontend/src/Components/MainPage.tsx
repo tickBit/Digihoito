@@ -221,7 +221,7 @@ const MainPage = () => {
     
   }
   
-}, [token, navigate, updateCases, cases]);
+}, [token, navigate, updateCases]);
 
   useEffect(() => {
   const connection = new signalR.HubConnectionBuilder()
@@ -259,6 +259,15 @@ const MainPage = () => {
     await joinKnownCaseGroups();
   });
 
+  connection.on("CaseCreated",  async(caseId: string) => {
+    console.log("case_created", caseId)
+    const currentToken = tokenRef.current;
+    if (currentToken) {
+      await getCases2(currentToken);
+    }
+    return;
+  });
+  
   connection.start()
     .then(async () => {
       console.log("Connected");
@@ -274,7 +283,7 @@ const MainPage = () => {
     varJoinedCaseIdsRefCur.clear();
     connection.stop();
   };
-}, [getCases2, token]);
+}, [getCases2]);
   
   useEffect(() => {
     joinKnownCaseGroups();
