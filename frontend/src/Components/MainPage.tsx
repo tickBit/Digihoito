@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import * as signalR from "@microsoft/signalr";
 
@@ -70,13 +70,14 @@ const MainPage = () => {
     }
   };
 
-  const updateCases = (data: CaseObject[]) => {
+  const updateCases = useCallback((data: CaseObject[]) => {
     casesRef.current = data;
     setCases(data);
     void joinKnownCaseGroups();
-  };
+  }, []
+  );
   
-  const getCases2 = async(token: string) => {
+  const getCases2 = useCallback(async(token: string) => {
         await axios.get(
                             "http://localhost:5199/cases",
                             {
@@ -94,8 +95,8 @@ const MainPage = () => {
                           }).catch(error => {
                             console.log(error);
                           });
-    
-      }
+      }, [updateCases]
+  );
   
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 
@@ -220,7 +221,7 @@ const MainPage = () => {
     
   }
   
-}, [token, navigate]);
+}, [token, navigate, updateCases]);
 
   useEffect(() => {
   const connection = new signalR.HubConnectionBuilder()
@@ -251,6 +252,8 @@ const MainPage = () => {
     
   });
 
+  const varJoinedCaseIdsRefCur = joinedCaseIdsRef.current;
+  
   connection.onreconnected(async () => {
     joinedCaseIdsRef.current.clear();
     await joinKnownCaseGroups();
@@ -268,10 +271,10 @@ const MainPage = () => {
   connectionRef.current = connection;
 
   return () => {
-    joinedCaseIdsRef.current.clear();
+    varJoinedCaseIdsRefCur.clear();
     connection.stop();
   };
-}, [token]);
+}, [getCases2, token]);
   
   useEffect(() => {
     joinKnownCaseGroups();
