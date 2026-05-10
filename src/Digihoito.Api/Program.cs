@@ -38,6 +38,7 @@ builder.Services.AddScoped<GetAllCasesQueryHandler>();
 builder.Services.AddScoped<LockCaseCommandHandler>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<INotifyNewMessages, SignalRNotifier>();
+builder.Services.AddScoped<INotifyNewCase, SignalRNotifier>();
 
 #region Authentication
 

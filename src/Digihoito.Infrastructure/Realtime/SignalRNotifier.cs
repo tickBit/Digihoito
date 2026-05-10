@@ -2,7 +2,7 @@ using Digihoito.Application.Cases.DTO;
 using Digihoito.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
-public class SignalRNotifier : INotifyNewMessages
+public class SignalRNotifier : INotifyNewMessages, INotifyNewCase
 {
     private readonly IHubContext<CasesHub> _hubContext;
 
@@ -17,6 +17,13 @@ public class SignalRNotifier : INotifyNewMessages
             .Group(caseId.ToString())
             .SendAsync("ReceiveMessages", messages );
             
+    }
+    
+    public async Task NotifyNewCase(Guid caseId)
+    {
+        await _hubContext.Clients
+            .All
+            .SendAsync("CaseCreated", caseId);
     }
    
 }
