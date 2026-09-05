@@ -33,9 +33,14 @@ const MainPage = () => {
   const [cases, setCases] = useState<CaseObject[] | null>(null);
                        
   const chatRef = useRef<HTMLDivElement>(null);
+  const topicRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     currentCaseIdRef.current = caseId;
+    if (caseId === null) {
+      topicRef.current?.scrollIntoView({ behavior: "smooth" });
+      console.log("topic ref");
+    }
   }, [caseId]);
 
   useEffect(() => {
@@ -299,6 +304,9 @@ const MainPage = () => {
     <div className='welcome'>
             <h1>Tervetuloa {userEmail}!</h1>
             <p>Olet kirjautunut sisään onnistuneesti.</p>
+            {userRole === 1 ? (
+            <p>Valitse vanha chat tai aloita uusi aihe jatkaaksesi.</p>
+            ) : null}
     </div>
 
     <div className="parent">
@@ -317,6 +325,7 @@ const MainPage = () => {
     {caseId === null && userRole === 1 ? ( <>
     <div className="contact-form-div">
     <form className="contact-form" onSubmit={handleSubmit}>
+    <div ref={topicRef} />
                 <h2>Voit ottaa yhteyttä asiantuntijaamme</h2>
                 <label htmlFor="subject"><strong>Uusi aihe: </strong><input id="subject" name="subject" placeholder="Kirjoita aihe..." required /></label>
                 <textarea id="message" name="message" placeholder="Kuvaus aiheesta..." required></textarea>
@@ -325,12 +334,15 @@ const MainPage = () => {
     </div>
     </>) : null}
     
-    {caseId !== null ? ( 
+    {caseId !== null || userRole === 2 ? ( 
      <>
     <div className="chat-view">
       <div ref={chatRef} />
       <h2>Chat</h2>
-      <button className="button-close">Close chat</button>
+      {userRole === 1 && (<>
+      <button className="button-close" onClick={() => setCaseId(null) } >Close chat</button>
+      </>)}
+      
       <div
         style={{
           border: "1px solid #ccc",
