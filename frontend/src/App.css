@@ -160,7 +160,7 @@
 }
 
 .case-div {
-  width: 10%;
+  width: 15%;
   margin-left: 2em;
   margin-top: 1em;
 }
@@ -177,4 +177,9 @@
   margin-bottom: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.next-prev {
+  color:#7792cd;
+  font-weight: 700;
 }
