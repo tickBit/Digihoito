@@ -128,12 +128,12 @@ app.MapPost("/cases", async (
 app.MapGet("/cases", async (
     GetAllCasesQueryHandler handler,
     ClaimsPrincipal user,
+    int pageNumber,
+    int pageSize,
     CancellationToken token) =>
 {
     var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
     var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
-    var pageNumber = int.Parse(user.FindFirstValue("pageNumber") ?? "1");
-    var pageSize = int.Parse(user.FindFirstValue("pageSize") ?? "10");
     var result = await handler.Handle(new GetAllCasesQuery(userId, role, pageNumber, pageSize), token);
     
     return Results.Ok(result);

@@ -27,6 +27,8 @@ public class GetCaseQueryHandler
         if (caseEntity == null)
             return null;
 
+        var totalCount = caseEntity.Messages.Count;
+        
         var messages = caseEntity.Messages.Select(m => new MessageDto(
                                                             m.Id,
                                                             request.CaseId,
@@ -37,7 +39,8 @@ public class GetCaseQueryHandler
                                                             m.IsReadByAdmin,
                                                             m.IsReadByPatient));
                 
-        return new CaseDto(
+        return
+            new CaseDto(
     caseEntity.Id,
     caseEntity.IsLocked,
     request.Role == UserRole.Admin
@@ -56,8 +59,8 @@ public class GetCaseQueryHandler
             m.IsReadByAdmin,
             m.IsReadByPatient
         ))
-        .ToList()
-        );
+        .ToList());
+    
+        }
     }
-}
 }
