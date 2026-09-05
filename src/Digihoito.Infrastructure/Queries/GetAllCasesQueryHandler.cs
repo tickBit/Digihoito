@@ -3,7 +3,6 @@ using Digihoito.Application.Cases.Queries;
 using Digihoito.Infrastructure.Persistence;
 using Digihoito.Domain.Users;
 using Microsoft.EntityFrameworkCore;
-using Digihoito.Application.Cases.DTO;
 
 public class GetAllCasesQueryHandler
 {
@@ -27,22 +26,24 @@ public class GetAllCasesQueryHandler
 
     var cases = await query
         .OrderByDescending(c => c.CreatedAt)
+        .Skip((request.PageNumber - 1) * request.PageSize)
+        .Take(request.PageSize)
         .ToListAsync(cancellationToken);
     
     return cases.Select(c =>
-{
-    
-    var subject= c.Subject;
-    
-    return new CaseListItemDto(
-        c.Id,
-        c.CreatedAt,
-        c.IsLocked,
-        request.Role == UserRole.Admin
-            ? c.Messages.Count(m => !m.IsReadByAdmin)
-            : c.Messages.Count(m => !m.IsReadByPatient),
-        subject
-    );
-}).ToList();
-}
+    {
+        
+        var subject= c.Subject;
+        
+        return new CaseListItemDto(
+            c.Id,
+            c.CreatedAt,
+            c.IsLocked,
+            request.Role == UserRole.Admin
+                ? c.Messages.Count(m => !m.IsReadByAdmin)
+                : c.Messages.Count(m => !m.IsReadByPatient),
+            subject
+        );
+    }).ToList();
+    }
 }
