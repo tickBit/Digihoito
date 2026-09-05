@@ -4,20 +4,22 @@ import * as signalR from "@microsoft/signalr";
 
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
-import MessageBubble from "../Components/MessageBubble";
-import MessageInput from "../Components/MessageInput";
 import { MessageDto } from "../types/case";
-import Header from './Header';
 import { markAsRead } from "../api/cases";
+import Header from "./Header";
+import MessageInput from "./MessageInput";
+import MessageBubble from "./MessageBubble";
+
+const PAGE_SIZE = 5;
 
 const MainPage = () => {
   
   type CaseObject = {
-    id: string
-    createdAt: Date
-    isLocked: boolean
-    subject: string
-    unreadCount: number
+    Id: string
+    CreatedAt: Date
+    IsLocked: boolean
+    Subject: string
+    UnreadCount: number
   }
 
   const navigate = useNavigate();
@@ -31,7 +33,10 @@ const MainPage = () => {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDto[] | null>(null);
   const [cases, setCases] = useState<CaseObject[] | null>(null);
-                       
+  
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  
   const chatRef = useRef<HTMLDivElement>(null);
   const topicRef = useRef<HTMLDivElement>(null);
 
@@ -39,7 +44,6 @@ const MainPage = () => {
     currentCaseIdRef.current = caseId;
     if (caseId === null) {
       topicRef.current?.scrollIntoView({ behavior: "smooth" });
-      console.log("topic ref");
     }
   }, [caseId]);
 
@@ -84,7 +88,7 @@ const MainPage = () => {
   
   const getCases2 = useCallback(async(token: string) => {
         await axios.get(
-                            "http://localhost:5199/cases",
+                            `http://localhost:5199/cases?PageNumber=${page}&PageSize=${PAGE_SIZE}`,
                             {
                               headers: {
                                 Authorization: `Bearer ${token}`
@@ -93,14 +97,14 @@ const MainPage = () => {
                           ).then(response => {
                             
                             const data = response.data;
-  
-                            updateCases(data);
-                            
-                            
+                            console.log(data.Cases);
+                            updateCases(data.Cases as CaseObject[]);
+                            setTotalCount(data.TotalCount);
+
                           }).catch(error => {
                             console.log(error);
                           });
-      }, [updateCases]
+      }, [updateCases, page]
   );
   
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -191,18 +195,20 @@ const MainPage = () => {
     
     const getCases = async(token: string) => {
         await axios.get(
-                            "http://localhost:5199/cases",
+                            `http://localhost:5199/cases?PageNumber=${page}&PageSize=${PAGE_SIZE}`,
                             {
                               headers: {
                                 Authorization: `Bearer ${token}`
                               }
+                              
                             }
                           ).then(response => {
                             
                             const data = response.data;
-                            console.log(data)
-                            updateCases(data)
-                                           
+                            console.log(data.Cases)
+                            updateCases(data.Cases);
+                            setTotalCount(data.TotalCount);
+                                                        
                           }).catch(error => {
                             console.log(error);
                           });
@@ -226,7 +232,7 @@ const MainPage = () => {
     
   }
   
-}, [token, navigate, updateCases]);
+}, [token, navigate, updateCases, page]);
 
   useEffect(() => {
   const connection = new signalR.HubConnectionBuilder()
@@ -305,21 +311,30 @@ const MainPage = () => {
             <h1>Tervetuloa {userEmail}!</h1>
             <p>Olet kirjautunut sisään onnistuneesti.</p>
             {userRole === 1 ? (
-            <p>Valitse vanha chat tai aloita uusi aihe jatkaaksesi.</p>
+            <p>Valitse vanha chat tai aloita uusi aihe.</p>
             ) : null}
     </div>
 
     <div className="parent">
-     
     <div className="case-div">
-      {cases && cases.map((c) => (
-        c.unreadCount > 0 ?
-        <h3 key={c.id} className="case-item" onClick={() => { void openCase(c.id); }} >{c.subject} ({c.unreadCount})</h3>
-        :        
-        <h3 key={c.id} className="case-item" onClick={() => { void openCase(c.id); }} >{c.subject}</h3>
-        )
+      {cases ?  (
+       <><p>Page: {page} / {Math.ceil(totalCount / PAGE_SIZE)}</p></> 
+      ) : null}
+      {cases && (
+        page === 1 && totalCount > page * PAGE_SIZE && (<><label className="next-prev" onClick={() => setPage(page + 1) }>Next page</label></>) ||
+        page > 1 && page < Math.floor(totalCount / PAGE_SIZE) + 1 && (<><label className="next-prev" onClick={() => setPage(page - 1) }>Prev page</label> <label className="next-prev" onClick={() => setPage(page + 1)}>Next page</label> </>) ||
+        Math.floor(totalCount / (page * PAGE_SIZE)) <= 5 && (<><label className="next-prev" onClick={() => setPage(page - 1)}>Prev page</label></>)
       )}
-      
+      {cases &&
+       (
+        cases.map((c: CaseObject) => (
+        c.UnreadCount > 0 ? (<>
+        <h3 key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); c.UnreadCount = 0; }} >{c.Subject} ({c.UnreadCount})</h3>
+        </>) 
+        : (<>  
+        <h3 key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); }} >{c.Subject}</h3>
+        </>)))
+      )}
     </div>
 
     {caseId === null && userRole === 1 ? ( <>
