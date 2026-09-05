@@ -32,7 +32,7 @@ const MainPage = () => {
   const [messages, setMessages] = useState<MessageDto[] | null>(null);
   const [cases, setCases] = useState<CaseObject[] | null>(null);
                        
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     currentCaseIdRef.current = caseId;
@@ -290,7 +290,7 @@ const MainPage = () => {
   }, [cases]);
   
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   return (
@@ -300,7 +300,9 @@ const MainPage = () => {
             <h1>Tervetuloa {userEmail}!</h1>
             <p>Olet kirjautunut sisään onnistuneesti.</p>
     </div>
-    
+
+    <div className="parent">
+     
     <div className="case-div">
       {cases && cases.map((c) => (
         c.unreadCount > 0 ?
@@ -311,14 +313,28 @@ const MainPage = () => {
       )}
       
     </div>
-    
-    <div style={{ maxWidth: "700px", margin: "auto" }}>
-      <h2>Chat</h2>
 
+    {caseId === null && userRole === 1 ? ( <>
+    <div className="contact-form-div">
+    <form className="contact-form" onSubmit={handleSubmit}>
+                <h2>Voit ottaa yhteyttä asiantuntijaamme</h2>
+                <label htmlFor="subject"><strong>Uusi aihe: </strong><input id="subject" name="subject" placeholder="Kirjoita aihe..." required /></label>
+                <textarea id="message" name="message" placeholder="Kuvaus aiheesta..." required></textarea>
+                <button type="submit">Lähetä</button>
+    </form>
+    </div>
+    </>) : null}
+    
+    {caseId !== null ? ( 
+     <>
+    <div className="chat-view">
+      <div ref={chatRef} />
+      <h2>Chat</h2>
+      <button className="button-close">Close chat</button>
       <div
         style={{
           border: "1px solid #ccc",
-          height: "400px",
+          height: "200px",
           overflowY: "auto",
           padding: "10px"
         }}
@@ -330,22 +346,12 @@ const MainPage = () => {
             currentUserId={m.senderId}
           />
         ))}
-
-        <div ref={bottomRef} />
       </div>
-
       <MessageInput onSend={sendMessage} />
     </div>
-    
-    {userRole == 1 ? ( <>
-    <form className="contact-form" onSubmit={handleSubmit}>
-                <h2>Voit ottaa yhteyttä asiantuntijaamme</h2>
-                <label htmlFor="message">Viesti:</label>
-                <label htmlFor="subject">Aihe: <input id="subject" name="subject" required /></label>
-                <textarea id="message" name="message" required></textarea>
-                <button type="submit">Lähetä</button>
-    </form>
-    </>) : null}
+    </>)
+    : null}
+    </div>
     </>
   );
 };
