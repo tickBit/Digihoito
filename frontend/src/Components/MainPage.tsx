@@ -357,7 +357,7 @@ const MainPage = () => {
        (
         cases.map((c: CaseObject) => (
         c.UnreadCount > 0 ? (<>
-        <img style={{ "cursor": "pointer" }} onClick={ userRole === 2 ? () => closeCase(c.Id) : undefined } src={c.IsLocked ? CLOSED : OPEN} width="18px" height="18px"/> <label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); c.UnreadCount = 0; setIsCurrentLocked(c.IsLocked); }} >{c.Subject} ({c.UnreadCount})</label>
+        <img style={{ "cursor": "pointer" }} onClick={ userRole === 2 ? () => closeCase(c.Id) : undefined } src={c.IsLocked ? CLOSED : OPEN} width="18px" height="18px"/> <label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); setIsCurrentLocked(c.IsLocked); }} >{c.Subject} ({c.UnreadCount})</label>
         <br /><br />
         </>) 
         : (<>  
