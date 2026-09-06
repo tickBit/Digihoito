@@ -204,6 +204,28 @@ app.MapPost("/cases/{id}/read", async (
     
 }).RequireAuthorization();
 
+app.MapPost("/cases/{id}/lock", async (
+    Guid id,
+    LockCaseCommandHandler handler,
+    ClaimsPrincipal user,
+    CancellationToken token) =>
+{
+    var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
+
+    if (role != UserRole.Admin) throw new("Only admin can lock conversations!");
+    
+    var command = new LockCaseCommand(
+        CaseId: id,
+        Role: role
+    );
+
+    Console.WriteLine("lock");
+    
+    await handler.Handle(command, token);
+    
+}).RequireAuthorization();
+
 #endregion
 
 #region Admin Initialization
