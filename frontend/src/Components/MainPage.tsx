@@ -39,6 +39,7 @@ const MainPage = () => {
   
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [isCurrentLocked, setIsCurrentLocked] = useState<boolean>(false);
   
   const chatRef = useRef<HTMLDivElement>(null);
   const topicRef = useRef<HTMLDivElement>(null);
@@ -181,6 +182,11 @@ const MainPage = () => {
     
     if (!caseId) return;
 
+    if (isCurrentLocked) {
+      console.log("This case is closed!");
+      return;  
+    }
+    
     await axios.post(
         `http://localhost:5199/cases/${caseId}/messages`,
         { content: text },
@@ -348,11 +354,11 @@ const MainPage = () => {
        (
         cases.map((c: CaseObject) => (
         c.UnreadCount > 0 ? (<>
-        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ c.IsLocked === false ? () => { openCase(c.Id); c.UnreadCount = 0; } : undefined } >{c.Subject} ({c.UnreadCount})</label>
+        {c.IsLocked === false ? <img style={{ "cursor": "pointer" }} onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); c.UnreadCount = 0; setIsCurrentLocked(c.IsLocked) }} >{c.Subject} ({c.UnreadCount})</label>
         <br /><br />
         </>) 
         : (<>  
-        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ c.IsLocked === false ? () => { openCase(c.Id); } : undefined } >{c.Subject}</label>
+        {c.IsLocked === false ? <img style={{ "cursor": "pointer" }} onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); setIsCurrentLocked(c.IsLocked); }} >{c.Subject}</label>
         <br /><br />
         </>)))
       )}
