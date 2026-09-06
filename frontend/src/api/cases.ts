@@ -10,10 +10,10 @@ export async function sendMessage(caseId: string, content: string) {
   await httpClient.post(`/cases/${caseId}/messages`, { content })
 }
 
-export async function markAsRead(caseId: string, token: string) {
+export async function markAsRead(caseId: string, role: number, token: string) {
   await httpClient.post(
     `/cases/${caseId}/read`,
-    {},
+    {Role: role},
     { headers: { Authorization: `Bearer ${token}` } }
   )
 }

@@ -170,14 +170,17 @@ const MainPage = () => {
   const openCase = async (id: string) => {
     setCaseId(id);
 
-    if (token) {
-      await markAsRead(id, token);
+    if (token) await markAsRead(id, userRole!, token);
+    
+    /*  
       updateCases((casesRef.current ?? []).map(c =>
         c.Id === id ? { ...c, unreadCount: 0 } : c
       ));
     }
-
+    */
     await fetchCaseMessages(id);
+    getCases2(token!);
+    
   };
   
   const sendMessage = async (text: string) => {
@@ -204,7 +207,7 @@ const MainPage = () => {
       fetchCaseMessages(caseId);
       
       if (token) {
-        await markAsRead(caseId, token);
+        await markAsRead(caseId, userRole!, token);
       }
       
       if (token) {
@@ -286,7 +289,7 @@ const MainPage = () => {
     }
 
     setMessages(messages);
-    await markAsRead(updatedCaseId, currentToken);
+    await markAsRead(updatedCaseId, userRole!, currentToken);
     await getCases2(currentToken);
     
   });
@@ -322,7 +325,7 @@ const MainPage = () => {
     varJoinedCaseIdsRefCur.clear();
     connection.stop();
   };
-}, [getCases2]);
+}, [getCases2, userRole]);
   
   useEffect(() => {
     joinKnownCaseGroups();
