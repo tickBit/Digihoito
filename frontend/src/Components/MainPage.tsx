@@ -348,11 +348,11 @@ const MainPage = () => {
        (
         cases.map((c: CaseObject) => (
         c.UnreadCount > 0 ? (<>
-        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); c.UnreadCount = 0; }} >{c.Subject} ({c.UnreadCount})</label>
+        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ c.IsLocked === false ? () => { openCase(c.Id); c.UnreadCount = 0; } : undefined } >{c.Subject} ({c.UnreadCount})</label>
         <br /><br />
         </>) 
         : (<>  
-        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); }} >{c.Subject}</label>
+        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ c.IsLocked === false ? () => { openCase(c.Id); } : undefined } >{c.Subject}</label>
         <br /><br />
         </>)))
       )}
