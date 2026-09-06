@@ -198,13 +198,10 @@ const MainPage = () => {
     ).then(async resp => {
       console.log(resp);
       
-      fetchCaseMessages(caseId);
+      openCase(caseId);
       
       if (token) {
         await markAsRead(caseId, userRole!, token);
-      }
-      
-      if (token) {
         await getCases2(token);
       }
       
@@ -297,8 +294,10 @@ const MainPage = () => {
 
   connection.on("CaseCreated",  async(caseId: string) => {
     console.log("case_created", caseId)
+    setCaseId(caseId);
     const currentToken = tokenRef.current;
     if (currentToken) {
+      await fetchCaseMessages(caseId);
       await getCases2(currentToken);
     }
     return;
