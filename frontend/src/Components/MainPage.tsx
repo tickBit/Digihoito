@@ -99,10 +99,12 @@ const MainPage = () => {
         }
       }).then(resoonse => {
         console.log(resoonse);
+        
+        getCases2(token!);
+        
       }).catch(error => {
         console.log(error);
       });
-    
   }
   
   const getCases2 = useCallback(async(token: string) => {
@@ -219,6 +221,7 @@ const MainPage = () => {
   useEffect(() => {
     
     const getCases = async(token: string) => {
+        
         await axios.get(
                             `http://localhost:5199/cases?PageNumber=${page}&PageSize=${PAGE_SIZE}`,
                             {
@@ -233,7 +236,7 @@ const MainPage = () => {
                             console.log(data.Cases)
                             updateCases(data.Cases);
                             setTotalCount(data.TotalCount);
-                                                        
+                            
                           }).catch(error => {
                             console.log(error);
                           });
@@ -248,7 +251,7 @@ const MainPage = () => {
         return;
       }
         
-        getCases(token!)
+        getCases(token!);
       };
   
   initChat();
@@ -350,18 +353,18 @@ const MainPage = () => {
         page > 1 && page < Math.floor(totalCount / PAGE_SIZE) + 1 && (<><label className="next-prev" onClick={() => setPage(page - 1) }>Prev page</label> <label className="next-prev" onClick={() => setPage(page + 1)}>Next page</label><br /><br /> </>) ||
         Math.floor(totalCount / (page * PAGE_SIZE)) <= 5 && (<><label className="next-prev" onClick={() => setPage(page - 1)}>Prev page</label><br /><br /></>)
       )}
-      {cases &&
+      {cases ?
        (
         cases.map((c: CaseObject) => (
         c.UnreadCount > 0 ? (<>
-        {c.IsLocked === false ? <img style={{ "cursor": "pointer" }} onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); c.UnreadCount = 0; setIsCurrentLocked(c.IsLocked) }} >{c.Subject} ({c.UnreadCount})</label>
+        <img style={{ "cursor": "pointer" }} onClick={ userRole === 2 ? () => closeCase(c.Id) : undefined } src={c.IsLocked ? CLOSED : OPEN} width="18px" height="18px"/> <label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); c.UnreadCount = 0; setIsCurrentLocked(c.IsLocked); }} >{c.Subject} ({c.UnreadCount})</label>
         <br /><br />
         </>) 
         : (<>  
-        {c.IsLocked === false ? <img style={{ "cursor": "pointer" }} onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={ () => { openCase(c.Id); setIsCurrentLocked(c.IsLocked); }} >{c.Subject}</label>
+        <img style={{ "cursor": "pointer" }} onClick={ userRole === 2 ? () => closeCase(c.Id) : undefined } src={c.IsLocked ? CLOSED : OPEN} width="18px" height="18px"/> <label key={c.Id} className="case-item" onClick={ () => { { openCase(c.Id); setIsCurrentLocked(c.IsLocked); }}} >{c.Subject}</label>
         <br /><br />
         </>)))
-      )}
+      ) : null}
     </div>
 
     {caseId === null && userRole === 1 ? ( <>
