@@ -192,7 +192,7 @@ app.MapPost("/cases/{id}/read", async (
 {    
     var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
     var role = Enum.Parse<UserRole>(user.FindFirstValue(ClaimTypes.Role)!);
-
+    
     var command = new MarkMessagesAsReadCommand(
         CaseId: id,
         Role: role
@@ -219,9 +219,7 @@ app.MapPost("/cases/{id}/lock", async (
         CaseId: id,
         Role: role
     );
-
-    Console.WriteLine("lock");
-    
+        
     await handler.Handle(command, token);
     
 }).RequireAuthorization();
