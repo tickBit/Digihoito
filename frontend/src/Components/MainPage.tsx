@@ -22,6 +22,9 @@ const MainPage = () => {
     UnreadCount: number
   }
 
+  const OPEN = "./assets/lock-open-svgrepo-com.svg";
+  const CLOSED = "./assets/lock-closed-svgrepo-com.svg";
+  
   const navigate = useNavigate();
 
   const { token, userEmail, userRole } = useAuth();
@@ -39,7 +42,7 @@ const MainPage = () => {
   
   const chatRef = useRef<HTMLDivElement>(null);
   const topicRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
     currentCaseIdRef.current = caseId;
     if (caseId === null) {
@@ -62,7 +65,7 @@ const MainPage = () => {
       return;
     }
 
-    const knownCaseIds = new Set(casesRef.current.map(c => c.id));
+    const knownCaseIds = new Set(casesRef.current.map(c => c.Id));
 
     for (const id of knownCaseIds) {
       if (!joinedCaseIdsRef.current.has(id)) {
@@ -86,12 +89,28 @@ const MainPage = () => {
   }, []
   );
   
+  const closeCase = async(id: string) => {
+    
+    await axios.post(`http://localhost:5199/cases/${id}/lock`, {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }).then(resoonse => {
+        console.log(resoonse);
+      }).catch(error => {
+        console.log(error);
+      });
+    
+  }
+  
   const getCases2 = useCallback(async(token: string) => {
         await axios.get(
                             `http://localhost:5199/cases?PageNumber=${page}&PageSize=${PAGE_SIZE}`,
                             {
                               headers: {
-                                Authorization: `Bearer ${token}`
+                                Authorization: `Bearer ${token}`,
+                                "Content-Type": "application/json"
                               }
                             }
                           ).then(response => {
@@ -151,7 +170,7 @@ const MainPage = () => {
     if (token) {
       await markAsRead(id, token);
       updateCases((casesRef.current ?? []).map(c =>
-        c.id === id ? { ...c, unreadCount: 0 } : c
+        c.Id === id ? { ...c, unreadCount: 0 } : c
       ));
     }
 
@@ -321,18 +340,20 @@ const MainPage = () => {
        <><p>Page: {page} / {Math.ceil(totalCount / PAGE_SIZE)}</p></> 
       ) : null}
       {cases && (
-        page === 1 && totalCount > page * PAGE_SIZE && (<><label className="next-prev" onClick={() => setPage(page + 1) }>Next page</label></>) ||
-        page > 1 && page < Math.floor(totalCount / PAGE_SIZE) + 1 && (<><label className="next-prev" onClick={() => setPage(page - 1) }>Prev page</label> <label className="next-prev" onClick={() => setPage(page + 1)}>Next page</label> </>) ||
-        Math.floor(totalCount / (page * PAGE_SIZE)) <= 5 && (<><label className="next-prev" onClick={() => setPage(page - 1)}>Prev page</label></>)
+        page === 1 && totalCount > page * PAGE_SIZE && (<><label className="next-prev" onClick={() => setPage(page + 1) }>Next page</label><br /><br /></>) ||
+        page > 1 && page < Math.floor(totalCount / PAGE_SIZE) + 1 && (<><label className="next-prev" onClick={() => setPage(page - 1) }>Prev page</label> <label className="next-prev" onClick={() => setPage(page + 1)}>Next page</label><br /><br /> </>) ||
+        Math.floor(totalCount / (page * PAGE_SIZE)) <= 5 && (<><label className="next-prev" onClick={() => setPage(page - 1)}>Prev page</label><br /><br /></>)
       )}
       {cases &&
        (
         cases.map((c: CaseObject) => (
         c.UnreadCount > 0 ? (<>
-        <h3 key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); c.UnreadCount = 0; }} >{c.Subject} ({c.UnreadCount})</h3>
+        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); c.UnreadCount = 0; }} >{c.Subject} ({c.UnreadCount})</label>
+        <br /><br />
         </>) 
         : (<>  
-        <h3 key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); }} >{c.Subject}</h3>
+        {c.IsLocked === false ? <img onClick={() => closeCase(c.Id)} src={OPEN} width="18px" height="18px"/> : <img src={CLOSED} width="18px" height="18px" />}<label key={c.Id} className="case-item" onClick={() => { void openCase(c.Id); }} >{c.Subject}</label>
+        <br /><br />
         </>)))
       )}
     </div>

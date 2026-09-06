@@ -167,6 +167,7 @@
 
 .case-item {
   cursor: pointer;
+  font-weight: 400;
 }
 
 .button-close {
