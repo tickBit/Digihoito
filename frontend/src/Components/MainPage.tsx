@@ -172,12 +172,6 @@ const MainPage = () => {
 
     if (token) await markAsRead(id, userRole!, token);
     
-    /*  
-      updateCases((casesRef.current ?? []).map(c =>
-        c.Id === id ? { ...c, unreadCount: 0 } : c
-      ));
-    }
-    */
     await fetchCaseMessages(id);
     getCases2(token!);
     
@@ -349,7 +343,7 @@ const MainPage = () => {
     <div className="parent">
     <div className="case-div">
       {cases ?  (
-       <><p>Page: {page} / {Math.ceil(totalCount / PAGE_SIZE)}</p></> 
+       <><p><strong>Page: {page} / {Math.ceil(totalCount / PAGE_SIZE)}</strong></p></> 
       ) : null}
       {cases && (
         page === 1 && totalCount > page * PAGE_SIZE && (<><label className="next-prev" onClick={() => setPage(page + 1) }>Next page</label><br /><br /></>) ||
