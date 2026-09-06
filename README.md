@@ -1,6 +1,6 @@
 # Projekti on tekeillä
 
-Vielä kovin keskeneräinen projekti / still unfinished project
+Vielä keskeneräinen projekti / still unfinished project
 
 ## Tietokantarelaatiot
 
@@ -10,6 +10,7 @@ Users (1) ─────── (N) Messages
 
 ## Kerrosarkkitehtuuri
 
+```
 ┌──────────────────────────────┐  
 │        Digihoito.Api         │  
 │  - Controllers / Endpoints   │  
@@ -39,9 +40,11 @@ Users (1) ─────── (N) Messages
 │  - Message (Entity)          │  
 │  - Domain-logiikka           │  
 └──────────────────────────────┘  
+```
 
 ## Domain-malli (aggregate)
 
+```
 Cases  
 │  
 ├── PatientCase  (Aggregate Root)  
@@ -65,3 +68,4 @@ Cases
       │  
       ├── MarkAsReadByAdmin()  
       └── MarkAsReadByPatient()  
+```
