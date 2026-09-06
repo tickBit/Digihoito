@@ -154,9 +154,9 @@ const MainPage = () => {
     };
 
   
-  const fetchCaseMessages = async (id: string) => {
+  const fetchCaseMessages = useCallback((id: string) => {
     
-    await axios.get(`http://localhost:5199/cases/${id}`, {
+    axios.get(`http://localhost:5199/cases/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => {
         setMessages(res.data.messages);
@@ -165,7 +165,7 @@ const MainPage = () => {
       console.log(error);
     })
     
-  };
+  }, [token]);
 
   const openCase = async (id: string) => {
     setCaseId(id);
@@ -294,10 +294,10 @@ const MainPage = () => {
 
   connection.on("CaseCreated",  async(caseId: string) => {
     console.log("case_created", caseId)
-    setCaseId(caseId);
+    if (userRole === 1) setCaseId(caseId);
     const currentToken = tokenRef.current;
     if (currentToken) {
-      await fetchCaseMessages(caseId);
+      if (userRole === 1) fetchCaseMessages(caseId);
       await getCases2(currentToken);
     }
     return;
@@ -318,7 +318,7 @@ const MainPage = () => {
     varJoinedCaseIdsRefCur.clear();
     connection.stop();
   };
-}, [getCases2, userRole]);
+}, [getCases2, userRole, fetchCaseMessages]);
   
   useEffect(() => {
     joinKnownCaseGroups();
