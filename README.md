@@ -2,6 +2,21 @@
 
 Digihoito on React- ja ASP.NET Core -sovellus. Projekti käytettävässä tilassa, vaikkakin siinä on vielä paranneltavaa.
 
+**Korostettakoon, että tämä siis on vain leluharrastusprojekti**.
+
+## Kuvia
+
+Asiantuntija ja potilas käyttävät sama sovellusta eri selaimella.
+
+**Potilaan näkymä.** Potilas voi myös sulkea chatin ja sitten avautuvassa näkymässä lisätä uuden *case*n so. chat-viestiketjuaiheen...
+
+<img width="1920" height="879" alt="Digihoito-potilas" src="https://github.com/user-attachments/assets/8c7b25f3-00c1-4251-a38e-bfcecf753dc3" />
+
+**Asiantuntijan näkymä**
+<img width="1920" height="874" alt="Digihoito-admin" src="https://github.com/user-attachments/assets/8f88344c-32c5-4624-97b8-a349dc1f90d1" />
+
+Asiantuntijalla näkyy siksi enemmän sivuja, koska hän voi lukea kaikkien potilaiden chat-viestit. Lukkoa painamalla asiantuntija voi lukita viestiketjun, jolloin myöskään hän ei itse voi lisätä siihen enää viestejä.
+
 ## Esivaatimukset
 
 Asenna Windows-ymparistoon seuraavat:
@@ -128,7 +143,7 @@ dotnet run --project src\Digihoito.Api\Digihoito.Api.csproj
 
 Oletuskäynnistys käyttää HTTP-osoitetta:
 
-- http://localhost:5199
+- `http://localhost:5199`
 
 Jata tama terminaali kayntiin.
 
@@ -145,7 +160,7 @@ npm run dev
 
 `npm install` asentaa riippuvuudet.
 
-Frontend avautuu oletuksena osoitteessa http://localhost:5173. Backendin tulee
+Frontend avautuu oletuksena osoitteessa `http://localhost:5173`. Backendin tulee
 olla kaynnissa toisessa terminaalissa. Frontend kayttaa backendia osoitteessa
 http://localhost:5199; osoite on talla hetkella maaritelty suoraan useisiin
 frontendin tiedostoihin, eika projektissa ole `.env`-asetusta.
